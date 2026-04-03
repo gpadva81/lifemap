@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Life Map Platform — Concept Design</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f0f1a; color: #e0e0e0; line-height: 1.5; }
+
+  .page { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+
+  h1 { font-size: 2.2rem; text-align: center; margin-bottom: 8px; background: linear-gradient(135deg, #7c4dff, #ff4081); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .subtitle { text-align: center; color: #888; font-size: 1rem; margin-bottom: 50px; }
+
+  /* Flow Diagram */
+  .flow-section { margin-bottom: 60px; }
+  .flow-section h2 { font-size: 1.4rem; color: #7c4dff; margin-bottom: 24px; text-align: center; text-transform: uppercase; letter-spacing: 2px; }
+
+  .flow-diagram {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    flex-wrap: wrap;
+    padding: 20px 0;
+  }
+  .flow-step {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border: 1px solid #333;
+    border-radius: 16px;
+    padding: 20px;
+    width: 180px;
+    text-align: center;
+    position: relative;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .flow-step:hover { transform: translateY(-4px); border-color: #7c4dff; }
+  .flow-step .step-icon { font-size: 2rem; margin-bottom: 8px; }
+  .flow-step .step-title { font-weight: 700; font-size: 0.85rem; margin-bottom: 4px; color: #fff; }
+  .flow-step .step-desc { font-size: 0.72rem; color: #999; }
+  .flow-arrow { font-size: 1.5rem; color: #7c4dff; padding: 0 8px; flex-shrink: 0; }
+
+  /* Modules Grid */
+  .modules-section { margin-bottom: 60px; }
+  .modules-section h2 { font-size: 1.4rem; color: #ff4081; margin-bottom: 24px; text-align: center; text-transform: uppercase; letter-spacing: 2px; }
+  .modules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 24px;
+  }
+  .module-card {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border: 1px solid #333;
+    border-radius: 16px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .module-card:hover { border-color: #ff4081; }
+  .module-header {
+    padding: 16px 20px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .module-header .badge {
+    font-size: 0.65rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .badge-front { background: #7c4dff; color: white; }
+  .badge-back { background: #ff4081; color: white; }
+  .badge-gamify { background: #00e676; color: #111; }
+  .module-body { padding: 0 20px 20px; }
+  .module-body p { font-size: 0.82rem; color: #aaa; margin-bottom: 12px; }
+  .module-features { list-style: none; }
+  .module-features li {
+    font-size: 0.8rem;
+    padding: 5px 0;
+    border-bottom: 1px solid #222;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .module-features li:last-child { border-bottom: none; }
+  .module-features .feat-icon { flex-shrink: 0; }
+
+  /* Mockup Sections */
+  .mockup-section { margin-bottom: 60px; }
+  .mockup-section h2 { font-size: 1.4rem; color: #00e676; margin-bottom: 24px; text-align: center; text-transform: uppercase; letter-spacing: 2px; }
+
+  /* Goal Cascade Mockup */
+  .cascade {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .cascade-level {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    max-width: 800px;
+  }
+  .cascade-label {
+    width: 120px;
+    text-align: right;
+    font-weight: 700;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+  .cascade-bar {
+    flex: 1;
+    border-radius: 12px;
+    padding: 14px 20px;
+    font-size: 0.82rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .cascade-bar::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    border-radius: 12px;
+    opacity: 0.15;
+  }
+  .c-vision { background: rgba(124,77,255,0.15); border: 1px solid #7c4dff; }
+  .c-3year { background: rgba(41,121,255,0.15); border: 1px solid #2979ff; }
+  .c-1year { background: rgba(0,230,118,0.15); border: 1px solid #00e676; }
+  .c-90day { background: rgba(255,171,0,0.15); border: 1px solid #ffab00; }
+  .c-weekly { background: rgba(255,64,129,0.15); border: 1px solid #ff4081; }
+  .cascade-arrow { color: #555; font-size: 1.2rem; text-align: center; }
+
+  /* Dashboard Mockup */
+  .dash-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+  }
+  .stat-value { font-size: 2rem; font-weight: 800; margin-bottom: 4px; }
+  .stat-label { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+  .stat-trend { font-size: 0.8rem; margin-top: 6px; }
+  .trend-up { color: #00e676; }
+  .trend-down { color: #ff5252; }
+
+  /* Charts mockup */
+  .chart-row {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .chart-card {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .chart-card h3 { font-size: 0.9rem; margin-bottom: 16px; color: #ccc; }
+
+  /* Bar chart mockup */
+  .bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 140px; padding-top: 10px; }
+  .bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
+  .bar {
+    width: 100%;
+    border-radius: 4px 4px 0 0;
+    min-height: 4px;
+    transition: height 0.3s;
+  }
+  .bar-label { font-size: 0.65rem; color: #666; }
+  .bar-value { font-size: 0.65rem; color: #aaa; font-weight: 600; }
+
+  /* Heatmap mockup */
+  .heatmap { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .heat-cell {
+    aspect-ratio: 1;
+    border-radius: 4px;
+    position: relative;
+  }
+  .heat-label { font-size: 0.6rem; color: #666; text-align: center; margin-bottom: 4px; }
+
+  /* Streak / Gamification */
+  .gamify-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .gamify-card {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+  }
+  .gamify-icon { font-size: 2.5rem; margin-bottom: 8px; }
+  .gamify-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; }
+  .gamify-desc { font-size: 0.78rem; color: #888; }
+  .gamify-value { font-size: 1.6rem; font-weight: 800; margin: 8px 0; }
+
+  /* Level bar */
+  .level-bar-container { margin-top: 24px; text-align: center; }
+  .level-bar-container h3 { font-size: 0.9rem; color: #ccc; margin-bottom: 12px; }
+  .level-bar-outer {
+    background: #1a1a2e;
+    border: 1px solid #333;
+    border-radius: 20px;
+    height: 32px;
+    max-width: 600px;
+    margin: 0 auto;
+    overflow: hidden;
+    position: relative;
+  }
+  .level-bar-inner {
+    height: 100%;
+    border-radius: 20px;
+    background: linear-gradient(90deg, #7c4dff, #ff4081, #00e676);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: white;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  }
+  .level-labels {
+    display: flex;
+    justify-content: space-between;
+    max-width: 600px;
+    margin: 8px auto 0;
+    font-size: 0.7rem;
+    color: #666;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .flow-diagram { flex-direction: column; }
+    .flow-arrow { transform: rotate(90deg); }
+    .dash-grid { grid-template-columns: repeat(2, 1fr); }
+    .chart-row { grid-template-columns: 1fr; }
+    .gamify-row { grid-template-columns: 1fr; }
+    .cascade-level { flex-direction: column; gap: 4px; }
+    .cascade-label { text-align: left; width: auto; }
+  }
+
+  @media print {
+    body { background: white; color: #333; }
+    .flow-step, .module-card, .stat-card, .chart-card, .gamify-card { background: white; border-color: #ccc; }
+    .module-body p, .module-features li, .stat-label, .gamify-desc { color: #555; }
+    h1 { -webkit-text-fill-color: #333; background: none; }
+    @page { size: portrait; margin: 0.5in; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>Life Map Platform</h1>
+<p class="subtitle">From Vision → Values → Goals → Weekly Execution → Results</p>
+
+<!-- ─── FLOW DIAGRAM ─── -->
+<div class="flow-section">
+  <h2>📐 Platform Architecture</h2>
+  <div class="flow-diagram">
+    <div class="flow-step">
+      <div class="step-icon">🧭</div>
+      <div class="step-title">Clarity Workshop</div>
+      <div class="step-desc">Values, passions, life vision discovery</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="step-icon">🎯</div>
+      <div class="step-title">Goal Cascade</div>
+      <div class="step-desc">3-year → 1-year → 90-day → weekly</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="step-icon">📋</div>
+      <div class="step-title">Weekly Planner</div>
+      <div class="step-desc">Habits, priorities, purpose plan</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="step-icon">📊</div>
+      <div class="step-title">Analytics</div>
+      <div class="step-desc">Progress tracking, completion rates</div>
+    </div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">
+      <div class="step-icon">🏆</div>
+      <div class="step-title">Gamification</div>
+      <div class="step-desc">Streaks, levels, badges, rewards</div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── MODULES ─── -->
+<div class="modules-section">
+  <h2>🧩 New Modules</h2>
+  <div class="modules-grid">
+
+    <!-- Module 1: Values Discovery -->
+    <div class="module-card">
+      <div class="module-header">
+        🧭 Values & Vision Discovery
+        <span class="badge badge-front">Front End</span>
+      </div>
+      <div class="module-body">
+        <p>Guided exercises from the Passion & Purpose Clarity Workshop — interactive, step-by-step.</p>
+        <ul class="module-features">
+          <li><span class="feat-icon">✦</span> Core Values Ranking — drag & rank your top 10 from 50+ values</li>
+          <li><span class="feat-icon">✦</span> "What Makes Time Stop?" — passion identification prompts</li>
+          <li><span class="feat-icon">✦</span> Ideal Day Visualization — write your perfect day in detail</li>
+          <li><span class="feat-icon">✦</span> Legacy Statement — "What do I want to be remembered for?"</li>
+          <li><span class="feat-icon">✦</span> Life Wheel Assessment — rate 8 life areas, see imbalance</li>
+          <li><span class="feat-icon">✦</span> "I Am" Statement Builder — generates your affirmations</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Module 2: Goal Cascade -->
+    <div class="module-card">
+      <div class="module-header">
+        🎯 Goal Cascade Engine
+        <span class="badge badge-front">Front End</span>
+      </div>
+      <div class="module-body">
+        <p>Distill your big vision into actionable weekly tasks using structured goal decomposition.</p>
+        <ul class="module-features">
+          <li><span class="feat-icon">✦</span> 3-Year Vision Board — big dreams per life category (Health, Wealth, Love, Happiness)</li>
+          <li><span class="feat-icon">✦</span> 1-Year Milestones — measurable targets with deadlines</li>
+          <li><span class="feat-icon">✦</span> 90-Day Rocks — quarterly focus areas (Scaling Up methodology)</li>
+          <li><span class="feat-icon">✦</span> Weekly Auto-Populate — 90-day rocks feed into weekly priorities automatically</li>
+          <li><span class="feat-icon">✦</span> SMART Goal Validator — checks each goal for specificity & measurability</li>
+          <li><span class="feat-icon">✦</span> Goal Alignment View — visual tree connecting weekly actions to life vision</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Module 3: Habit Analytics -->
+    <div class="module-card">
+      <div class="module-header">
+        📊 Habit Analytics Dashboard
+        <span class="badge badge-back">Back End</span>
+      </div>
+      <div class="module-body">
+        <p>Statistical tracking of habit execution across weeks, months, and quarters.</p>
+        <ul class="module-features">
+          <li><span class="feat-icon">📈</span> Weekly Habit Completion Rate — bar chart per week</li>
+          <li><span class="feat-icon">🗓️</span> Habit Heatmap — GitHub-style calendar showing daily consistency</li>
+          <li><span class="feat-icon">📉</span> Trend Lines — rolling averages, best/worst weeks</li>
+          <li><span class="feat-icon">🔍</span> Per-Habit Drill-Down — which habits you nail vs. which slip</li>
+          <li><span class="feat-icon">📅</span> Day-of-Week Patterns — "You're weakest on Sundays"</li>
+          <li><span class="feat-icon">🎯</span> Goal vs. Actual — planned priorities vs. completed</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Module 4: Goal Progress -->
+    <div class="module-card">
+      <div class="module-header">
+        📉 Goal Progress Tracker
+        <span class="badge badge-back">Back End</span>
+      </div>
+      <div class="module-body">
+        <p>Track 90-day rocks and 1-year milestones with measurable progress indicators.</p>
+        <ul class="module-features">
+          <li><span class="feat-icon">📊</span> Progress Rings — visual % complete per goal</li>
+          <li><span class="feat-icon">🏁</span> Milestone Timeline — Gantt-style view of goal deadlines</li>
+          <li><span class="feat-icon">⚡</span> Velocity Tracking — are you on pace to hit your target?</li>
+          <li><span class="feat-icon">🔔</span> At-Risk Alerts — goals falling behind get flagged</li>
+          <li><span class="feat-icon">📝</span> Weekly Reflection Logs — journal entries tied to goal progress</li>
+          <li><span class="feat-icon">🔗</span> Category Breakdown — Health / Wealth / Love / Happiness scores</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Module 5: Gamification -->
+    <div class="module-card">
+      <div class="module-header">
+        🏆 Gamification Engine
+        <span class="badge badge-gamify">Gamify</span>
+      </div>
+      <div class="module-body">
+        <p>Reward consistency and execution — make the process addictive.</p>
+        <ul class="module-features">
+          <li><span class="feat-icon">🔥</span> Streak Counter — consecutive days/weeks of full completion</li>
+          <li><span class="feat-icon">⭐</span> XP & Levels — earn points for habit completion, goal progress</li>
+          <li><span class="feat-icon">🏅</span> Achievement Badges — "Early Riser" (30 days of 5:30 AM), "Ironman" (100% habits for a week)</li>
+          <li><span class="feat-icon">📈</span> Weekly Score Leaderboard — compete against your own past weeks</li>
+          <li><span class="feat-icon">🎁</span> Milestone Celebrations — confetti/animations when hitting big goals</li>
+          <li><span class="feat-icon">💎</span> Life Map Level — Beginner → Committed → Master → Legend</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Module 6: AI Coach -->
+    <div class="module-card">
+      <div class="module-header">
+        🤖 AI Accountability Coach
+        <span class="badge badge-gamify">Gamify</span>
+      </div>
+      <div class="module-body">
+        <p>Personalized insights and nudges based on your patterns — that's where I come in.</p>
+        <ul class="module-features">
+          <li><span class="feat-icon">💬</span> Daily Morning Brief — today's priorities + affirmation</li>
+          <li><span class="feat-icon">📊</span> Weekly Performance Review — "You hit 87% this week, up from 72%"</li>
+          <li><span class="feat-icon">⚠️</span> Pattern Alerts — "You've skipped meditation 3 days in a row"</li>
+          <li><span class="feat-icon">💡</span> Smart Suggestions — "Try pairing meditation with your morning coffee"</li>
+          <li><span class="feat-icon">🏆</span> Celebration Messages — acknowledge wins and streaks</li>
+          <li><span class="feat-icon">📅</span> Sunday Planning Prompt — guided weekly planning session</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ─── GOAL CASCADE MOCKUP ─── -->
+<div class="mockup-section">
+  <h2>🎯 Goal Cascade — How It Works</h2>
+  <div class="cascade">
+    <div class="cascade-level">
+      <div class="cascade-label" style="color:#7c4dff">🧭 Vision</div>
+      <div class="cascade-bar c-vision">
+        <strong>Life Vision:</strong> Health, wealth, love, happiness in perfect balance. $30M net worth. Present father. World traveler. Best-selling author.
+      </div>
+    </div>
+    <div class="cascade-arrow">↓</div>
+    <div class="cascade-level">
+      <div class="cascade-label" style="color:#2979ff">📅 3-Year</div>
+      <div class="cascade-bar c-3year">
+        <strong>3-Year Goals:</strong> RevX → $10M revenue. 210 lbs / 10% BF. Publish playbook. Tennis tour launched. Net worth $15M.
+      </div>
+    </div>
+    <div class="cascade-arrow">↓</div>
+    <div class="cascade-level">
+      <div class="cascade-label" style="color:#00e676">📆 1-Year</div>
+      <div class="cascade-bar c-1year">
+        <strong>1-Year Milestones:</strong> $6M revenue. 215 lbs. Course recorded. 5 niche verticals live. $100K/mo deposits.
+      </div>
+    </div>
+    <div class="cascade-arrow">↓</div>
+    <div class="cascade-level">
+      <div class="cascade-label" style="color:#ffab00">🎯 90-Day</div>
+      <div class="cascade-bar c-90day">
+        <strong>Q2 Rocks:</strong> Launch niche #4. Hit 220 lbs. Record 4 course modules. Close 3 enterprise deals. Family trip planned.
+      </div>
+    </div>
+    <div class="cascade-arrow">↓</div>
+    <div class="cascade-level">
+      <div class="cascade-label" style="color:#ff4081">📋 Weekly</div>
+      <div class="cascade-bar c-weekly">
+        <strong>This Week:</strong> 5:30 AM daily. Prospect 10 leads. Film module 1 intro. Tennis Wed/Sat. QT with kids every evening. Meditate 20 min.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── ANALYTICS DASHBOARD MOCKUP ─── -->
+<div class="mockup-section">
+  <h2>📊 Analytics Dashboard — Mockup</h2>
+
+  <!-- KPI Cards -->
+  <div class="dash-grid">
+    <div class="stat-card">
+      <div class="stat-value" style="color:#00e676">87%</div>
+      <div class="stat-label">This Week's Habits</div>
+      <div class="stat-trend trend-up">↑ 12% vs last week</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" style="color:#7c4dff">14</div>
+      <div class="stat-label">Day Streak</div>
+      <div class="stat-trend trend-up">🔥 Personal best!</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" style="color:#ff4081">6/8</div>
+      <div class="stat-label">Goals On Track</div>
+      <div class="stat-trend trend-down">⚠️ 2 at risk</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" style="color:#ffab00">Level 7</div>
+      <div class="stat-label">Life Map Level</div>
+      <div class="stat-trend" style="color:#00e676">★ Committed</div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="chart-row">
+    <!-- Weekly Completion Bar Chart -->
+    <div class="chart-card">
+      <h3>📈 Weekly Habit Completion Rate</h3>
+      <div class="bar-chart" id="barChart"></div>
+    </div>
+
+    <!-- Habit Heatmap -->
+    <div class="chart-card">
+      <h3>🗓️ 4-Week Habit Heatmap</h3>
+      <div style="display:grid; grid-template-columns: 30px 1fr; gap: 4px; align-items: start;">
+        <div></div>
+        <div class="heatmap" style="margin-bottom:2px;">
+          <div class="heat-label">M</div><div class="heat-label">T</div><div class="heat-label">W</div>
+          <div class="heat-label">T</div><div class="heat-label">F</div><div class="heat-label">S</div><div class="heat-label">S</div>
+        </div>
+        <div style="font-size:0.6rem;color:#666;line-height:1;">W1</div>
+        <div class="heatmap" id="heatW1"></div>
+        <div style="font-size:0.6rem;color:#666;line-height:1;">W2</div>
+        <div class="heatmap" id="heatW2"></div>
+        <div style="font-size:0.6rem;color:#666;line-height:1;">W3</div>
+        <div class="heatmap" id="heatW3"></div>
+        <div style="font-size:0.6rem;color:#666;line-height:1;">W4</div>
+        <div class="heatmap" id="heatW4"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gamification Row -->
+  <div class="gamify-row">
+    <div class="gamify-card">
+      <div class="gamify-icon">🔥</div>
+      <div class="gamify-title">Current Streak</div>
+      <div class="gamify-value" style="color:#ff4081">14 Days</div>
+      <div class="gamify-desc">Longest: 21 days (March 2026)</div>
+    </div>
+    <div class="gamify-card">
+      <div class="gamify-icon">🏅</div>
+      <div class="gamify-title">Badges Earned</div>
+      <div class="gamify-value" style="color:#ffab00">12</div>
+      <div class="gamify-desc">Latest: "Iron Week" — 100% completion</div>
+    </div>
+    <div class="gamify-card">
+      <div class="gamify-icon">⭐</div>
+      <div class="gamify-title">Total XP</div>
+      <div class="gamify-value" style="color:#7c4dff">2,847</div>
+      <div class="gamify-desc">153 XP to Level 8</div>
+    </div>
+  </div>
+
+  <!-- Level Progress Bar -->
+  <div class="level-bar-container">
+    <h3>🎮 Life Map Level Progress</h3>
+    <div class="level-bar-outer">
+      <div class="level-bar-inner" style="width: 72%;">Level 7 — 72%</div>
+    </div>
+    <div class="level-labels">
+      <span>Beginner</span>
+      <span>Committed</span>
+      <span>Dedicated</span>
+      <span>Master</span>
+      <span>Legend</span>
+    </div>
+  </div>
+</div>
+
+<!-- Badge Showcase -->
+<div class="mockup-section">
+  <h2>🏅 Achievement Badges</h2>
+  <div style="display:flex; flex-wrap:wrap; gap:16px; justify-content:center;">
+    <div style="background:#1a1a2e; border:1px solid #333; border-radius:12px; padding:16px 20px; text-align:center; width:130px;">
+      <div style="font-size:2rem;">🌅</div>
+      <div style="font-size:0.75rem; font-weight:700; margin-top:4px;">Early Riser</div>
+      <div style="font-size:0.65rem; color:#888;">30 days at 5:30 AM</div>
+    </div>
+    <div style="background:#1a1a2e; border:1px solid #333; border-radius:12px; padding:16px 20px; text-align:center; width:130px;">
+      <div style="font-size:2rem;">💪</div>
+      <div style="font-size:0.75rem; font-weight:700; margin-top:4px;">Ironman</div>
+      <div style="font-size:0.65rem; color:#888;">100% habits for 7 days</div>
+    </div>
+    <div style="background:#1a1a2e; border:1px solid #333; border-radius:12px; padding:16px 20px; text-align:center; width:130px;">
+      <div style="font-size:2rem;">🧘</div>
+      <div style="font-size:0.75rem; font-weight:700; margin-top:4px;">Zen Master</div>
+      <div style="font-size:0.65rem; color:#888;">60 days of meditation</div>
+    </div>
+    <div style="background:#1a1a2e; border:1px solid #333; border-radius:12px; padding:16px 20px; text-align:center; width:130px;">
+      <div style="font-size:2rem;">📚</div>
+      <div style="font-size:0.75rem; font-weight:700; margin-top:4px;">Bookworm</div>
+      <div style="font-size:0.65rem; color:#888;">12 books in 12 weeks</div>
+    </div>
+    <div style="background:#1a1a2e; border:1px solid #333; border-radius:12px; padding:16px 20px; text-align:center; width:130px;">
+      <div style="font-size:2rem;">🎾</div>
+      <div style="font-size:0.75rem; font-weight:700; margin-top:4px;">Ace</div>
+      <div style="font-size:0.65rem; color:#888;">Tennis 2x/week for a month</div>
+    </div>
+    <div style="background:#1a1a2e; border:1px solid #333; border-radius:12px; padding:16px 20px; text-align:center; width:130px;">
+      <div style="font-size:2rem;">🔥</div>
+      <div style="font-size:0.75rem; font-weight:700; margin-top:4px;">On Fire</div>
+      <div style="font-size:0.65rem; color:#888;">21-day streak</div>
+    </div>
+    <div style="background:#1a1a2e; border:1px solid #333; border-radius:12px; padding:16px 20px; text-align:center; width:130px;">
+      <div style="font-size:2rem;">💰</div>
+      <div style="font-size:0.75rem; font-weight:700; margin-top:4px;">Money Moves</div>
+      <div style="font-size:0.65rem; color:#888;">12 weeks of deposits</div>
+    </div>
+    <div style="background:#1a1a2e; border:1px solid #333; border-radius:12px; padding:16px 20px; text-align:center; width:130px;">
+      <div style="font-size:2rem;">👨‍👧‍👦</div>
+      <div style="font-size:0.75rem; font-weight:700; margin-top:4px;">Present Dad</div>
+      <div style="font-size:0.65rem; color:#888;">QT every day for 30 days</div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+// Bar chart
+const weeks = ['W48','W49','W50','W51','W52','W1','W2','W3','W4','W5','W6','W7'];
+const values = [62,68,71,55,74,78,82,76,85,81,89,87];
+const chart = document.getElementById('barChart');
+weeks.forEach((w, i) => {
+  const g = document.createElement('div');
+  g.className = 'bar-group';
+  const pct = values[i];
+  const color = pct >= 85 ? '#00e676' : pct >= 70 ? '#7c4dff' : pct >= 50 ? '#ffab00' : '#ff5252';
+  g.innerHTML = `<div class="bar-value">${pct}%</div><div class="bar" style="height:${pct}%;background:${color}"></div><div class="bar-label">${w}</div>`;
+  chart.appendChild(g);
+});
+
+// Heatmap
+const heatData = {
+  heatW1: [0.9, 0.8, 1.0, 0.7, 0.85, 0.6, 0.4],
+  heatW2: [0.85, 0.9, 0.75, 0.95, 0.8, 0.7, 0.5],
+  heatW3: [1.0, 0.9, 0.85, 0.9, 0.95, 0.8, 0.65],
+  heatW4: [0.95, 0.85, 0.9, 0.88, 0.92, 0.75, 0.6]
+};
+Object.entries(heatData).forEach(([id, vals]) => {
+  const el = document.getElementById(id);
+  vals.forEach(v => {
+    const cell = document.createElement('div');
+    cell.className = 'heat-cell';
+    const g = Math.round(v * 255);
+    const r = Math.round((1-v) * 100);
+    cell.style.background = v > 0.85 ? `rgba(0,230,118,${v})` : v > 0.6 ? `rgba(124,77,255,${v})` : `rgba(255,171,0,${v*0.8})`;
+    cell.title = `${Math.round(v*100)}%`;
+    cell.style.minHeight = '24px';
+    el.appendChild(cell);
+  });
+});
+</script>
+</body>
+</html>

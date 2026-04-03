@@ -64,6 +64,90 @@
     75% { transform: translateX(8px); }
   }
 
+  /* Print button */
+  .print-btn {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: linear-gradient(135deg, #1a237e, #4a148c);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .print-btn:hover { opacity: 0.9; }
+
+  /* Print styles */
+  @media print {
+    body { padding: 0; margin: 0; background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .lock-screen, .print-btn, .save-indicator, .add-btn, .week-selector button { display: none !important; }
+    .header { 
+      background: linear-gradient(135deg, #1a237e, #4a148c) !important; 
+      border-radius: 0; 
+      margin-bottom: 10px; 
+      padding: 10px 16px;
+      break-after: avoid;
+    }
+    .header h1 { font-size: 1.3rem; }
+    .week-label { font-size: 0.95rem; }
+    .grid {
+      grid-template-columns: 1fr 1.4fr 1fr;
+      gap: 10px;
+      max-width: 100%;
+    }
+    .card { 
+      box-shadow: none; 
+      border: 1px solid #ddd; 
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+    .card-header { padding: 5px 10px; font-size: 0.75rem; }
+    .card-body { padding: 8px 10px; }
+    .goals-list li { padding: 3px 0; font-size: 0.75rem; }
+    .goal-text { font-size: 0.75rem; }
+    .goal-num { width: 16px; height: 16px; font-size: 0.6rem; }
+    .habits-table th, .habits-table td { padding: 2px 1px; }
+    .habits-table .habit-name { font-size: 0.7rem; }
+    .habits-table th { font-size: 0.6rem; }
+    .habits-table input[type="checkbox"] { width: 12px; height: 12px; }
+    .priority-table th { font-size: 0.6rem; }
+    .priority-table input[type="text"] { font-size: 0.72rem; }
+    .priority-table input[type="checkbox"] { width: 13px; height: 13px; }
+    .priority-label { font-size: 0.7rem; padding: 2px 6px; margin-bottom: 3px; }
+    .health-schedule li { padding: 2px 0; font-size: 0.75rem; }
+    .health-schedule input { font-size: 0.72rem; }
+    .day-label { font-size: 0.75rem; }
+    .inspiration-area { font-size: 0.85rem; min-height: 40px; padding: 6px; }
+    .card-textarea { font-size: 0.75rem; min-height: 50px; }
+    .life-cat-header { font-size: 0.68rem; padding: 2px 6px; }
+    .text-list input { font-size: 0.72rem; }
+    .learning-item { font-size: 0.72rem; }
+    .learning-label { font-size: 0.72rem; width: 75px; }
+    .learning-item input { font-size: 0.72rem; }
+    .wrapup-list li { font-size: 0.72rem; padding: 3px 0; }
+    .wrapup-list input[type="checkbox"] { width: 13px; height: 13px; }
+    .financial-row { padding: 3px 0; }
+    .fin-label { font-size: 0.72rem; width: 65px; }
+    .fin-input { font-size: 0.75rem; padding: 2px 6px; }
+    .passion-subtitle { font-size: 0.68rem; margin-bottom: 4px; }
+    .stars { font-size: 0.9rem; padding: 3px; }
+    .score-row td { font-size: 0.75rem; }
+    textarea, input { border: none !important; }
+
+    @page {
+      size: landscape;
+      margin: 0.4in;
+    }
+  }
+
   :root {
     --green: #2e7d32;
     --green-light: #e8f5e9;
@@ -667,6 +751,7 @@
   </div>
 </div>
 
+<button class="print-btn" onclick="window.print()">🖨️ Print / Save PDF</button>
 <div class="save-indicator" id="saveIndicator">✓ Saved</div>
 
 </div><!-- end mainApp -->

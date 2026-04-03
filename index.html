@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gabriel Padva — Life Map</title>
+<style>
+  :root {
+    --green: #2e7d32;
+    --green-light: #e8f5e9;
+    --blue: #1565c0;
+    --blue-light: #e3f2fd;
+    --purple: #6a1b9a;
+    --purple-light: #f3e5f5;
+    --orange: #e65100;
+    --orange-light: #fff3e0;
+    --yellow: #f9a825;
+    --yellow-light: #fffde7;
+    --red: #c62828;
+    --red-light: #ffebee;
+    --teal: #00695c;
+    --teal-light: #e0f2f1;
+    --gray: #424242;
+    --gray-light: #f5f5f5;
+    --bg: #fafafa;
+    --card-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: #333;
+    line-height: 1.4;
+    padding: 16px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 16px;
+    background: linear-gradient(135deg, #1a237e, #4a148c);
+    color: white;
+    border-radius: 12px;
+  }
+  .header h1 { font-size: 1.6rem; font-weight: 700; }
+  .header .week-selector {
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+  .header .week-selector button {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  .header .week-selector button:hover { background: rgba(255,255,255,0.35); }
+  .header .week-label { font-size: 1.1rem; font-weight: 500; min-width: 260px; }
+
+  /* Grid Layout */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr 1fr;
+    gap: 16px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* Card */
+  .card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+  }
+  .card-header {
+    padding: 8px 14px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: white;
+  }
+  .card-body { padding: 12px 14px; }
+
+  /* Color Variants */
+  .card-green .card-header { background: var(--green); }
+  .card-blue .card-header { background: var(--blue); }
+  .card-purple .card-header { background: var(--purple); }
+  .card-orange .card-header { background: var(--orange); }
+  .card-yellow .card-header { background: var(--yellow); color: #333; }
+  .card-red .card-header { background: var(--red); }
+  .card-teal .card-header { background: var(--teal); }
+  .card-gray .card-header { background: var(--gray); }
+
+  /* Goals list */
+  .goals-list { list-style: none; }
+  .goals-list li {
+    padding: 6px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .goals-list li:last-child { border-bottom: none; }
+  .goal-num {
+    background: var(--green);
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .goal-text {
+    flex: 1;
+    border: none;
+    background: none;
+    font-size: 0.85rem;
+    font-family: inherit;
+    color: #333;
+    width: 100%;
+    outline: none;
+    padding: 0;
+  }
+  .goal-text:focus { border-bottom: 1px solid var(--green); }
+
+  /* Priority tables */
+  .priority-section { margin-bottom: 14px; }
+  .priority-section:last-child { margin-bottom: 0; }
+  .priority-label {
+    font-weight: 700;
+    font-size: 0.8rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+    display: inline-block;
+  }
+  .p1 { background: #c62828; color: white; }
+  .p2 { background: #e65100; color: white; }
+  .p3 { background: #1565c0; color: white; }
+
+  .priority-table { width: 100%; border-collapse: collapse; }
+  .priority-table th {
+    font-size: 0.7rem;
+    text-align: center;
+    padding: 4px;
+    background: #f5f5f5;
+    font-weight: 600;
+  }
+  .priority-table td { padding: 4px; border-bottom: 1px solid #eee; }
+  .priority-table input[type="text"] {
+    width: 100%;
+    border: none;
+    background: none;
+    font-size: 0.82rem;
+    font-family: inherit;
+    outline: none;
+    padding: 2px;
+  }
+  .priority-table input[type="text"]:focus { background: #f0f4ff; border-radius: 3px; }
+  .priority-table input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+  .col-task { width: 65%; }
+  .col-plan { width: 17.5%; text-align: center; }
+  .col-exec { width: 17.5%; text-align: center; }
+
+  /* Health Plan */
+  .health-schedule { list-style: none; }
+  .health-schedule li {
+    display: flex;
+    gap: 8px;
+    padding: 4px 0;
+    border-bottom: 1px solid #eee;
+    align-items: center;
+    font-size: 0.85rem;
+  }
+  .health-schedule li:last-child { border-bottom: none; }
+  .day-label {
+    font-weight: 700;
+    width: 28px;
+    color: var(--blue);
+    flex-shrink: 0;
+  }
+  .health-schedule input {
+    flex: 1;
+    border: none;
+    background: none;
+    font-size: 0.82rem;
+    font-family: inherit;
+    outline: none;
+    padding: 2px;
+  }
+  .health-schedule input:focus { background: #e3f2fd; border-radius: 3px; }
+
+  /* Inspiration */
+  .inspiration-area {
+    width: 100%;
+    min-height: 60px;
+    border: none;
+    background: var(--yellow-light);
+    font-family: 'Georgia', serif;
+    font-style: italic;
+    font-size: 1rem;
+    padding: 10px;
+    resize: vertical;
+    outline: none;
+    border-radius: 6px;
+    color: #555;
+  }
+
+  /* Winning Habits */
+  .habits-table { width: 100%; border-collapse: collapse; }
+  .habits-table th {
+    font-size: 0.7rem;
+    padding: 4px 2px;
+    text-align: center;
+    background: #fff3e0;
+    font-weight: 700;
+    color: var(--orange);
+  }
+  .habits-table th:first-child { text-align: left; width: 55%; }
+  .habits-table td { padding: 3px 2px; border-bottom: 1px solid #f0f0f0; text-align: center; }
+  .habits-table td:first-child { text-align: left; font-size: 0.8rem; }
+  .habits-table input[type="checkbox"] { width: 15px; height: 15px; cursor: pointer; accent-color: var(--orange); }
+  .habits-table .habit-name {
+    border: none; background: none; font-size: 0.8rem; font-family: inherit; outline: none; width: 100%; padding: 1px;
+  }
+  .habits-table .habit-name:focus { background: #fff3e0; border-radius: 3px; }
+  .score-row td { font-weight: 700; color: var(--orange); font-size: 0.85rem; border-top: 2px solid var(--orange); }
+
+  /* Textarea cards */
+  .card-textarea {
+    width: 100%;
+    min-height: 80px;
+    border: none;
+    background: none;
+    font-family: inherit;
+    font-size: 0.85rem;
+    resize: vertical;
+    outline: none;
+    padding: 0;
+    color: #333;
+  }
+
+  /* Gratitude / text lists */
+  .text-list { list-style: none; }
+  .text-list li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 0;
+    border-bottom: 1px solid #eee;
+  }
+  .text-list li:last-child { border-bottom: none; }
+  .text-list .bullet { color: var(--green); font-weight: 700; }
+  .text-list input {
+    flex: 1;
+    border: none;
+    background: none;
+    font-size: 0.82rem;
+    font-family: inherit;
+    outline: none;
+    padding: 2px;
+  }
+  .text-list input:focus { background: #e8f5e9; border-radius: 3px; }
+
+  /* Life category cards */
+  .life-category { margin-bottom: 12px; }
+  .life-category:last-child { margin-bottom: 0; }
+  .life-cat-header {
+    font-weight: 700;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-bottom: 4px;
+    display: inline-block;
+    color: white;
+  }
+
+  /* Learning Plan */
+  .learning-item {
+    display: flex;
+    gap: 8px;
+    padding: 4px 0;
+    border-bottom: 1px solid #eee;
+    align-items: center;
+    font-size: 0.82rem;
+  }
+  .learning-item:last-child { border-bottom: none; }
+  .learning-label { font-weight: 600; width: 90px; flex-shrink: 0; color: #555; }
+  .learning-item input {
+    flex: 1;
+    border: none;
+    background: none;
+    font-size: 0.82rem;
+    font-family: inherit;
+    outline: none;
+    padding: 2px;
+  }
+  .learning-item input:focus { background: #e3f2fd; border-radius: 3px; }
+
+  /* Weekly Wrap Up checklist */
+  .wrapup-list { list-style: none; }
+  .wrapup-list li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 0.82rem;
+  }
+  .wrapup-list li:last-child { border-bottom: none; }
+  .wrapup-list input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: var(--teal); }
+
+  /* Financial */
+  .financial-row {
+    display: flex;
+    gap: 8px;
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
+    align-items: center;
+  }
+  .financial-row:last-child { border-bottom: none; }
+  .fin-label { font-weight: 600; width: 80px; font-size: 0.82rem; color: #555; }
+  .fin-input {
+    flex: 1;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 0.85rem;
+    font-family: inherit;
+    outline: none;
+  }
+  .fin-input:focus { border-color: var(--gray); }
+
+  /* Passion */
+  .passion-subtitle { font-size: 0.78rem; color: #888; margin-bottom: 8px; font-style: italic; }
+
+  /* Stars row */
+  .stars { color: var(--yellow); font-size: 1.1rem; letter-spacing: 4px; text-align: center; padding: 6px; }
+
+  /* Save indicator */
+  .save-indicator {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--green);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    z-index: 100;
+  }
+  .save-indicator.show { opacity: 1; }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Center column stacked cards */
+  .center-stack { display: flex; flex-direction: column; gap: 16px; }
+  .right-stack { display: flex; flex-direction: column; gap: 16px; }
+  .left-stack { display: flex; flex-direction: column; gap: 16px; }
+
+  /* Add habit button */
+  .add-btn {
+    display: block;
+    width: 100%;
+    padding: 6px;
+    border: 1px dashed #ccc;
+    background: none;
+    color: #999;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    margin-top: 6px;
+  }
+  .add-btn:hover { border-color: #999; color: #666; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Gabriel Padva — Life Map</h1>
+  <div class="week-selector">
+    <button onclick="changeWeek(-1)">← Prev</button>
+    <span class="week-label" id="weekLabel"></span>
+    <button onclick="changeWeek(1)">Next →</button>
+  </div>
+</div>
+
+<div class="grid">
+  <!-- LEFT COLUMN -->
+  <div class="left-stack">
+    <!-- Goals -->
+    <div class="card card-green">
+      <div class="card-header">🎯 2026 Goals</div>
+      <div class="card-body">
+        <ol class="goals-list" id="goalsList"></ol>
+        <button class="add-btn" onclick="addGoal()">+ Add Goal</button>
+      </div>
+    </div>
+
+    <!-- Health Plan -->
+    <div class="card card-blue">
+      <div class="card-header">💪 Health Plan</div>
+      <div class="card-body">
+        <ul class="health-schedule" id="healthSchedule"></ul>
+      </div>
+    </div>
+
+    <!-- Inspiration -->
+    <div class="card card-yellow">
+      <div class="card-header">✨ Inspiration</div>
+      <div class="card-body">
+        <div class="stars">★ ★ ★ ★ ★ ★ ★</div>
+        <textarea class="inspiration-area" id="inspiration" placeholder="Write your inspiration quote..." oninput="autoSave()"></textarea>
+      </div>
+    </div>
+
+    <!-- Winning Habits -->
+    <div class="card card-orange">
+      <div class="card-header">🏆 Winning Habits</div>
+      <div class="card-body">
+        <table class="habits-table" id="habitsTable">
+          <thead>
+            <tr>
+              <th>Habit</th>
+              <th>M</th><th>T</th><th>W</th><th>T</th><th>F</th><th>S</th><th>S</th>
+            </tr>
+          </thead>
+          <tbody id="habitsBody"></tbody>
+          <tfoot>
+            <tr class="score-row">
+              <td>Score</td>
+              <td id="sc0">0</td><td id="sc1">0</td><td id="sc2">0</td><td id="sc3">0</td><td id="sc4">0</td><td id="sc5">0</td><td id="sc6">0</td>
+            </tr>
+          </tfoot>
+        </table>
+        <button class="add-btn" onclick="addHabit()">+ Add Habit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CENTER COLUMN -->
+  <div class="center-stack">
+    <!-- Purpose Plan -->
+    <div class="card card-red">
+      <div class="card-header">📋 Purpose Plan</div>
+      <div class="card-body">
+        <!-- Priority 1 -->
+        <div class="priority-section">
+          <span class="priority-label p1">#1 First Priority</span>
+          <table class="priority-table">
+            <thead><tr><th class="col-task">Task</th><th class="col-plan">Plan</th><th class="col-exec">Done</th></tr></thead>
+            <tbody id="priority1"></tbody>
+          </table>
+          <button class="add-btn" onclick="addPriority(1)">+ Add</button>
+        </div>
+        <!-- Priority 2 -->
+        <div class="priority-section">
+          <span class="priority-label p2">#2 Secondary Priority</span>
+          <table class="priority-table">
+            <thead><tr><th class="col-task">Task</th><th class="col-plan">Plan</th><th class="col-exec">Done</th></tr></thead>
+            <tbody id="priority2"></tbody>
+          </table>
+          <button class="add-btn" onclick="addPriority(2)">+ Add</button>
+        </div>
+        <!-- Priority 3 -->
+        <div class="priority-section">
+          <span class="priority-label p3">#3 Meaningful Interactions</span>
+          <table class="priority-table">
+            <thead><tr><th class="col-task">Task</th><th class="col-plan">Plan</th><th class="col-exec">Done</th></tr></thead>
+            <tbody id="priority3"></tbody>
+          </table>
+          <button class="add-btn" onclick="addPriority(3)">+ Add</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Life Categories -->
+    <div class="card card-teal">
+      <div class="card-header">🌍 Life Categories</div>
+      <div class="card-body">
+        <div class="life-category">
+          <span class="life-cat-header" style="background:#c62828">Health</span>
+          <textarea class="card-textarea" id="cat_health" placeholder="Health notes..." oninput="autoSave()"></textarea>
+        </div>
+        <div class="life-category">
+          <span class="life-cat-header" style="background:#1565c0">Business</span>
+          <textarea class="card-textarea" id="cat_business" placeholder="Business notes..." oninput="autoSave()"></textarea>
+        </div>
+        <div class="life-category">
+          <span class="life-cat-header" style="background:#6a1b9a">Relationships</span>
+          <textarea class="card-textarea" id="cat_relationships" placeholder="Relationships notes..." oninput="autoSave()"></textarea>
+        </div>
+        <div class="life-category">
+          <span class="life-cat-header" style="background:#2e7d32">Growth</span>
+          <textarea class="card-textarea" id="cat_growth" placeholder="Growth notes..." oninput="autoSave()"></textarea>
+        </div>
+        <div class="life-category">
+          <span class="life-cat-header" style="background:#e65100">Giving Back</span>
+          <textarea class="card-textarea" id="cat_giving" placeholder="Giving back notes..." oninput="autoSave()"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT COLUMN -->
+  <div class="right-stack">
+    <!-- Passion & Celebration -->
+    <div class="card card-purple">
+      <div class="card-header">🔥 Passion & Celebration</div>
+      <div class="card-body">
+        <div class="passion-subtitle">What makes time stop? What gives you energy?</div>
+        <textarea class="card-textarea" id="passion" placeholder="Write what lights you up..." oninput="autoSave()"></textarea>
+      </div>
+    </div>
+
+    <!-- Gratitude List -->
+    <div class="card card-green">
+      <div class="card-header">🙏 Gratitude List</div>
+      <div class="card-body">
+        <ul class="text-list" id="gratitudeList"></ul>
+        <button class="add-btn" onclick="addGratitude()">+ Add</button>
+      </div>
+    </div>
+
+    <!-- Learning Plan -->
+    <div class="card card-blue">
+      <div class="card-header">📚 Learning Plan</div>
+      <div class="card-body">
+        <div class="learning-item">
+          <span class="learning-label">Language:</span>
+          <input type="text" id="learn_language" placeholder="..." oninput="autoSave()">
+        </div>
+        <div class="learning-item">
+          <span class="learning-label">Online Course:</span>
+          <input type="text" id="learn_course" placeholder="..." oninput="autoSave()">
+        </div>
+        <div class="learning-item">
+          <span class="learning-label">Audio Book:</span>
+          <input type="text" id="learn_audiobook" placeholder="..." oninput="autoSave()">
+        </div>
+      </div>
+    </div>
+
+    <!-- Weekly Wrap Up -->
+    <div class="card card-teal">
+      <div class="card-header">📝 Weekly Wrap Up</div>
+      <div class="card-body">
+        <ul class="wrapup-list" id="wrapupList"></ul>
+      </div>
+    </div>
+
+    <!-- Financial Data -->
+    <div class="card card-gray">
+      <div class="card-header">💰 Financial Data</div>
+      <div class="card-body">
+        <div class="financial-row">
+          <span class="fin-label">Cash</span>
+          <input class="fin-input" type="text" id="fin_cash" placeholder="$0" oninput="autoSave()">
+        </div>
+        <div class="financial-row">
+          <span class="fin-label">Investment</span>
+          <input class="fin-input" type="text" id="fin_investment" placeholder="$0" oninput="autoSave()">
+        </div>
+        <div class="financial-row">
+          <span class="fin-label">Net Worth</span>
+          <input class="fin-input" type="text" id="fin_networth" placeholder="$0" oninput="autoSave()">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="save-indicator" id="saveIndicator">✓ Saved</div>
+
+<script>
+// ─── State ───
+let currentWeekStart = getMonday(new Date());
+
+function getMonday(d) {
+  d = new Date(d);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  d.setDate(diff);
+  d.setHours(0,0,0,0);
+  return d;
+}
+
+function weekKey() {
+  return currentWeekStart.toISOString().slice(0,10);
+}
+
+function formatWeekLabel() {
+  const end = new Date(currentWeekStart);
+  end.setDate(end.getDate() + 6);
+  const opts = { month: 'long', day: 'numeric' };
+  const startStr = currentWeekStart.toLocaleDateString('en-US', opts);
+  const endStr = end.toLocaleDateString('en-US', { ...opts, year: 'numeric' });
+  return `Week of ${startStr} – ${endStr}`;
+}
+
+function changeWeek(dir) {
+  saveData();
+  currentWeekStart.setDate(currentWeekStart.getDate() + dir * 7);
+  document.getElementById('weekLabel').textContent = formatWeekLabel();
+  loadData();
+}
+
+// ─── Default Data ───
+const defaultGoals = [
+  "230 LBS by June 5, 2026",
+  "Be a Present, Loving, Happy Father & Husband.",
+  "Emyth / ECademy / Scaling Up Proficiency",
+  "77 Active Clients > $500K MRR / $6M ARR.",
+  "Publish RevX Playbook and Course.",
+  "Travel Around the World."
+];
+
+const defaultHabits = [
+  "Life Map",
+  "Drink 1L Lemon Water",
+  "Guided Training (Weights, Cardio)",
+  "Meditation (20 Minutes)",
+  "Healthy Smoothie / Prepare",
+  "Review Business Dashboards",
+  "Review Rocks and Daily Action Plan",
+  "Energized Team Huddle",
+  "Read / Listen to Non Fiction (Truth)",
+  "Movement (Stretch, Walk, Sport)",
+  "MFP Input Accountability",
+  "Plan Tomorrow Today",
+  "Floss & Brush My Teeth",
+  "QT with Kids Before Bedtime",
+  "Read / Listen to Fiction (Imagination)"
+];
+
+const defaultWrapup = [
+  "Reflection Questions",
+  "New Planner",
+  "Weekly check-in with Karla",
+  "Meal Planning"
+];
+
+const defaultHealthDays = [
+  { day: "M", val: "" },
+  { day: "T", val: "" },
+  { day: "W", val: "" },
+  { day: "T", val: "" },
+  { day: "F", val: "" },
+  { day: "S", val: "" },
+  { day: "S", val: "" }
+];
+
+function getDefault() {
+  return {
+    goals: [...defaultGoals],
+    healthDays: defaultHealthDays.map(d => ({...d})),
+    inspiration: "« Tout va bien »",
+    habits: defaultHabits.map(h => ({ name: h, checks: [false,false,false,false,false,false,false] })),
+    priority1: [{task:"",plan:false,done:false},{task:"",plan:false,done:false},{task:"",plan:false,done:false},{task:"",plan:false,done:false}],
+    priority2: [{task:"",plan:false,done:false},{task:"",plan:false,done:false},{task:"",plan:false,done:false},{task:"",plan:false,done:false}],
+    priority3: [{task:"",plan:false,done:false},{task:"",plan:false,done:false},{task:"",plan:false,done:false}],
+    passion: "",
+    gratitude: ["","","","",""],
+    learn_language: "",
+    learn_course: "",
+    learn_audiobook: "",
+    wrapup: defaultWrapup.map(w => ({ text: w, done: false })),
+    fin_cash: "",
+    fin_investment: "",
+    fin_networth: "",
+    cat_health: "",
+    cat_business: "",
+    cat_relationships: "",
+    cat_growth: "",
+    cat_giving: ""
+  };
+}
+
+// ─── Persistence ───
+function storageKey() { return 'lifemap_' + weekKey(); }
+
+function saveData() {
+  const data = collectData();
+  localStorage.setItem(storageKey(), JSON.stringify(data));
+  showSaved();
+}
+
+function loadData() {
+  const raw = localStorage.getItem(storageKey());
+  const data = raw ? JSON.parse(raw) : getDefault();
+  renderAll(data);
+}
+
+function collectData() {
+  const data = {};
+  // Goals
+  data.goals = [];
+  document.querySelectorAll('#goalsList .goal-text').forEach(inp => data.goals.push(inp.value));
+  // Health
+  data.healthDays = [];
+  document.querySelectorAll('#healthSchedule li').forEach(li => {
+    data.healthDays.push({ day: li.querySelector('.day-label').textContent, val: li.querySelector('input').value });
+  });
+  // Inspiration
+  data.inspiration = document.getElementById('inspiration').value;
+  // Habits
+  data.habits = [];
+  document.querySelectorAll('#habitsBody tr:not(.score-row)').forEach(tr => {
+    const name = tr.querySelector('.habit-name').value;
+    const checks = [];
+    tr.querySelectorAll('input[type=checkbox]').forEach(cb => checks.push(cb.checked));
+    data.habits.push({ name, checks });
+  });
+  // Priorities
+  [1,2,3].forEach(n => {
+    data['priority'+n] = [];
+    document.querySelectorAll('#priority'+n+' tr').forEach(tr => {
+      const task = tr.querySelector('input[type=text]').value;
+      const cbs = tr.querySelectorAll('input[type=checkbox]');
+      data['priority'+n].push({ task, plan: cbs[0].checked, done: cbs[1].checked });
+    });
+  });
+  // Textareas
+  data.passion = document.getElementById('passion').value;
+  ['cat_health','cat_business','cat_relationships','cat_growth','cat_giving'].forEach(id => {
+    data[id] = document.getElementById(id).value;
+  });
+  // Gratitude
+  data.gratitude = [];
+  document.querySelectorAll('#gratitudeList input').forEach(inp => data.gratitude.push(inp.value));
+  // Learning
+  data.learn_language = document.getElementById('learn_language').value;
+  data.learn_course = document.getElementById('learn_course').value;
+  data.learn_audiobook = document.getElementById('learn_audiobook').value;
+  // Wrapup
+  data.wrapup = [];
+  document.querySelectorAll('#wrapupList li').forEach(li => {
+    data.wrapup.push({ text: li.querySelector('span') ? li.querySelector('span').textContent : '', done: li.querySelector('input[type=checkbox]').checked });
+  });
+  // Financial
+  data.fin_cash = document.getElementById('fin_cash').value;
+  data.fin_investment = document.getElementById('fin_investment').value;
+  data.fin_networth = document.getElementById('fin_networth').value;
+  return data;
+}
+
+// ─── Rendering ───
+function renderAll(data) {
+  renderGoals(data.goals || defaultGoals);
+  renderHealth(data.healthDays || defaultHealthDays);
+  document.getElementById('inspiration').value = data.inspiration || '';
+  renderHabits(data.habits || getDefault().habits);
+  renderPriority(1, data.priority1 || getDefault().priority1);
+  renderPriority(2, data.priority2 || getDefault().priority2);
+  renderPriority(3, data.priority3 || getDefault().priority3);
+  document.getElementById('passion').value = data.passion || '';
+  renderGratitude(data.gratitude || getDefault().gratitude);
+  document.getElementById('learn_language').value = data.learn_language || '';
+  document.getElementById('learn_course').value = data.learn_course || '';
+  document.getElementById('learn_audiobook').value = data.learn_audiobook || '';
+  renderWrapup(data.wrapup || getDefault().wrapup);
+  document.getElementById('fin_cash').value = data.fin_cash || '';
+  document.getElementById('fin_investment').value = data.fin_investment || '';
+  document.getElementById('fin_networth').value = data.fin_networth || '';
+  ['cat_health','cat_business','cat_relationships','cat_growth','cat_giving'].forEach(id => {
+    document.getElementById(id).value = data[id] || '';
+  });
+  updateScores();
+}
+
+function renderGoals(goals) {
+  const ol = document.getElementById('goalsList');
+  ol.innerHTML = '';
+  goals.forEach((g, i) => {
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="goal-num">${i+1}</span><input class="goal-text" value="${escHtml(g)}" oninput="autoSave()">`;
+    ol.appendChild(li);
+  });
+}
+
+function renderHealth(days) {
+  const ul = document.getElementById('healthSchedule');
+  ul.innerHTML = '';
+  days.forEach(d => {
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="day-label">${d.day}:</span><input type="text" value="${escHtml(d.val)}" placeholder="Activity..." oninput="autoSave()">`;
+    ul.appendChild(li);
+  });
+}
+
+function renderHabits(habits) {
+  const body = document.getElementById('habitsBody');
+  body.innerHTML = '';
+  habits.forEach((h, i) => {
+    const tr = document.createElement('tr');
+    let html = `<td><input class="habit-name" value="${escHtml(h.name)}" oninput="autoSave()"></td>`;
+    for (let d = 0; d < 7; d++) {
+      html += `<td><input type="checkbox" ${h.checks[d]?'checked':''} onchange="updateScores(); autoSave()"></td>`;
+    }
+    tr.innerHTML = html;
+    body.appendChild(tr);
+  });
+}
+
+function renderPriority(n, items) {
+  const tbody = document.getElementById('priority'+n);
+  tbody.innerHTML = '';
+  items.forEach(item => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="col-task"><input type="text" value="${escHtml(item.task)}" placeholder="Task..." oninput="autoSave()"></td>
+      <td class="col-plan"><input type="checkbox" ${item.plan?'checked':''} onchange="autoSave()"></td>
+      <td class="col-exec"><input type="checkbox" ${item.done?'checked':''} onchange="autoSave()"></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderGratitude(items) {
+  const ul = document.getElementById('gratitudeList');
+  ul.innerHTML = '';
+  items.forEach(val => {
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="bullet">•</span><input type="text" value="${escHtml(val)}" placeholder="I'm grateful for..." oninput="autoSave()">`;
+    ul.appendChild(li);
+  });
+}
+
+function renderWrapup(items) {
+  const ul = document.getElementById('wrapupList');
+  ul.innerHTML = '';
+  items.forEach(w => {
+    const li = document.createElement('li');
+    li.innerHTML = `<input type="checkbox" ${w.done?'checked':''} onchange="autoSave()"><span>${escHtml(w.text)}</span>`;
+    ul.appendChild(li);
+  });
+}
+
+// ─── Adders ───
+function addGoal() {
+  const ol = document.getElementById('goalsList');
+  const n = ol.children.length + 1;
+  const li = document.createElement('li');
+  li.innerHTML = `<span class="goal-num">${n}</span><input class="goal-text" value="" placeholder="New goal..." oninput="autoSave()">`;
+  ol.appendChild(li);
+  li.querySelector('input').focus();
+  autoSave();
+}
+
+function addHabit() {
+  const body = document.getElementById('habitsBody');
+  const tr = document.createElement('tr');
+  let html = `<td><input class="habit-name" value="" placeholder="New habit..." oninput="autoSave()"></td>`;
+  for (let d = 0; d < 7; d++) {
+    html += `<td><input type="checkbox" onchange="updateScores(); autoSave()"></td>`;
+  }
+  tr.innerHTML = html;
+  body.appendChild(tr);
+  tr.querySelector('.habit-name').focus();
+  autoSave();
+}
+
+function addPriority(n) {
+  const tbody = document.getElementById('priority'+n);
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td class="col-task"><input type="text" value="" placeholder="Task..." oninput="autoSave()"></td>
+    <td class="col-plan"><input type="checkbox" onchange="autoSave()"></td>
+    <td class="col-exec"><input type="checkbox" onchange="autoSave()"></td>`;
+  tbody.appendChild(tr);
+  tr.querySelector('input[type=text]').focus();
+  autoSave();
+}
+
+function addGratitude() {
+  const ul = document.getElementById('gratitudeList');
+  const li = document.createElement('li');
+  li.innerHTML = `<span class="bullet">•</span><input type="text" value="" placeholder="I'm grateful for..." oninput="autoSave()">`;
+  ul.appendChild(li);
+  li.querySelector('input').focus();
+  autoSave();
+}
+
+// ─── Scores ───
+function updateScores() {
+  for (let d = 0; d < 7; d++) {
+    let count = 0;
+    document.querySelectorAll('#habitsBody tr').forEach(tr => {
+      const cbs = tr.querySelectorAll('input[type=checkbox]');
+      if (cbs[d] && cbs[d].checked) count++;
+    });
+    document.getElementById('sc'+d).textContent = count;
+  }
+}
+
+// ─── Helpers ───
+function escHtml(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+let saveTimeout;
+function autoSave() {
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(() => saveData(), 500);
+}
+
+function showSaved() {
+  const el = document.getElementById('saveIndicator');
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 1500);
+}
+
+// ─── Init ───
+document.getElementById('weekLabel').textContent = formatWeekLabel();
+loadData();
+</script>
+</body>
+</html>

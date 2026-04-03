@@ -631,37 +631,45 @@ function changeWeek(dir) {
 
 // ─── Default Data ───
 const defaultGoals = [
-  "230 LBS by June 5, 2026",
-  "Be a Present, Loving, Happy Father & Husband.",
-  "Emyth / ECademy / Scaling Up Proficiency",
-  "77 Active Clients > $500K MRR / $6M ARR.",
-  "Publish RevX Playbook and Course.",
-  "Travel Around the World."
+  "210 LBS / 10% Body Fat / Visible Six-Pack",
+  "Be a Present, Loving, Happy Father & Husband",
+  "RevX / Active Funnel → $10M+ Revenue / 5 Niches",
+  "$250K/month Profit → $100K+ After-Tax Deposits Monthly",
+  "Sell Company for $100M / Net Worth $30M",
+  "Publish RevX Playbook, Course & Become Best-Selling Author",
+  "Travel the World — Tennis Tour, Family Trips, Personal Retreats",
+  "Give Back — Mentor, Support Causes, Build Foundation"
 ];
 
 const defaultHabits = [
-  "Life Map",
+  "5:30 AM Rise + Morning Run",
+  "Life Map / Manifesto",
   "Drink 1L Lemon Water",
+  "Cold Shower",
+  "Meditation & Visualization (20 Min)",
   "Guided Training (Weights, Cardio)",
-  "Meditation (20 Minutes)",
-  "Healthy Smoothie / Prepare",
-  "Review Business Dashboards",
-  "Review Rocks and Daily Action Plan",
+  "Healthy Smoothie / Meal Prep",
+  "Track Food / MFP Accountability",
+  "Review Business Dashboards & KPIs",
+  "Review Rocks & Daily Action Plan",
+  "High Payoff Activities (Planning, Prospecting, Sales)",
   "Energized Team Huddle",
   "Read / Listen to Non Fiction (Truth)",
-  "Movement (Stretch, Walk, Sport)",
-  "MFP Input Accountability",
+  "Movement (Stretch, Walk, Tennis, Sport)",
   "Plan Tomorrow Today",
-  "Floss & Brush My Teeth",
   "QT with Kids Before Bedtime",
-  "Read / Listen to Fiction (Imagination)"
+  "Read / Listen to Fiction (Imagination)",
+  "Floss & Brush Teeth",
+  "Daily Reflection / Journal"
 ];
 
 const defaultWrapup = [
   "Reflection Questions",
-  "New Planner",
-  "Weekly check-in with Karla",
-  "Meal Planning"
+  "New Planner — Plan the Week Ahead",
+  "Weekly Check-in with Karla",
+  "Meal Planning",
+  "Review 5 Energies (Mental, Physical, Emotional, Business, Spiritual)",
+  "Review Financial Deposits & Investments"
 ];
 
 const defaultHealthDays = [
@@ -678,7 +686,7 @@ function getDefault() {
   return {
     goals: [...defaultGoals],
     healthDays: defaultHealthDays.map(d => ({...d})),
-    inspiration: "« Tout va bien »",
+    inspiration: "This is my life, it's the one I create,\nManifesting my goals, I'm sealing my fate.\nI'm the author, the dreamer, the one I was meant to be.",
     habits: defaultHabits.map(h => ({ name: h, checks: [false,false,false,false,false,false,false] })),
     priority1: [{task:"",plan:false,done:false},{task:"",plan:false,done:false},{task:"",plan:false,done:false},{task:"",plan:false,done:false}],
     priority2: [{task:"",plan:false,done:false},{task:"",plan:false,done:false},{task:"",plan:false,done:false},{task:"",plan:false,done:false}],
@@ -692,11 +700,11 @@ function getDefault() {
     fin_cash: "",
     fin_investment: "",
     fin_networth: "",
-    cat_health: "",
-    cat_business: "",
-    cat_relationships: "",
-    cat_growth: "",
-    cat_giving: ""
+    cat_health: "I AM: dedicated to my health, full of positive energy. 210 lbs, 10% body fat, visible six-pack.\nI FEEL: centered, focused, energized.\nIT'S LIKE ME TO: exercise & meditate daily, track food, manage calories wisely.\n5 Energies: Mental (plan) → Physical (exercise) → Emotional (family) → Business (prospecting) → Spiritual (meditation)",
+    cat_business: "I AM: a successful entrepreneur easily accumulating $30M net worth. RevX/Active Funnel → $10M+ revenue, 5 niches, $250K/month profit.\nI FEEL: excited, inspired, unstoppable.\nIT'S LIKE ME TO: plan each day, manage time impeccably, focus on high payoff activities — planning, KW research, copywriting, relationship building, systems, leadership, sales.\nGOAL: Sell company for $100M. Deposit $100K+ after-tax monthly.",
+    cat_relationships: "Karla — unconditional love, mutual inspiration, passion, Jewish values, life partner.\nNaomi — creative pursuits, always her rock.\nSamuel — fun, playful, sports, life discussions.\nStella — joy and love.\n3 Communities: Family/Friends • Success Community • Giving Back Community\nI FEEL: loved, peaceful, joyous, grateful.\nIT'S LIKE ME TO: be present, empathetic, caring, humble, supportive.",
+    cat_growth: "Read 1 book/week. Audiobooks while driving. Daily reflection & learning.\nPersonal retreats. Stanford & EO foundations.\nMastering: AI, data, leadership, performance psychology.\nSought-after speaker. Best-selling author. Courses & playbook.",
+    cat_giving: "Giving back is a duty I hold dear. I support causes, mentor, and guide.\nBuilding a foundation where dreams reside.\nIntellectual and financial support to my giving back community."
   };
 }
 

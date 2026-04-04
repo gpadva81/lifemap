@@ -56,7 +56,7 @@ input, textarea, select { font-family:inherit; }
 .sidebar-brand h1 { font-size:1.2rem; background:linear-gradient(135deg,var(--purple),var(--pink)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
 .sidebar-brand .week-label { font-size:0.75rem; color:var(--text2); margin-top:4px; }
 .sidebar-nav { flex:1; padding:12px 0; overflow-y:auto; }
-.nav-item { display:flex; align-items:center; gap:12px; padding:12px 20px; color:var(--text2); font-size:0.88rem; font-weight:500; text-decoration:none; cursor:pointer; transition:all .15s; border-left:3px solid transparent; }
+.nav-item { display:flex; align-items:center; gap:12px; padding:12px 20px; color:var(--text2); font-size:0.88rem; font-weight:500; text-decoration:none; cursor:pointer; transition:all .15s; border-left:3px solid transparent; -webkit-tap-highlight-color:rgba(124,77,255,0.2); touch-action:manipulation; user-select:none; }
 .nav-item:hover { background:rgba(124,77,255,0.08); color:var(--text); }
 .nav-item.active { background:rgba(124,77,255,0.12); color:var(--purple); border-left-color:var(--purple); }
 .nav-item .nav-icon { font-size:1.1rem; width:24px; text-align:center; }
@@ -456,14 +456,14 @@ input[type=checkbox] { width:16px; height:16px; accent-color:var(--purple); curs
       <div class="week-label" id="sidebarWeek"></div>
     </div>
     <div class="sidebar-nav">
-      <div class="nav-item active" data-page="planner"><span class="nav-icon">📋</span> Weekly Planner</div>
-      <div class="nav-item" data-page="daily"><span class="nav-icon">📅</span> Daily Action Plan</div>
-      <div class="nav-item" data-page="clarity"><span class="nav-icon">🧭</span> Clarity Workshop</div>
-      <div class="nav-item" data-page="cascade"><span class="nav-icon">🎯</span> Goal Cascade</div>
-      <div class="nav-item" data-page="analytics"><span class="nav-icon">📊</span> Analytics</div>
-      <div class="nav-item" data-page="braindump"><span class="nav-icon">💡</span> Brain Dump</div>
-      <div class="nav-item" data-page="dream100"><span class="nav-icon">⭐</span> Dream 100</div>
-      <div class="nav-item" data-page="achievements"><span class="nav-icon">🏆</span> Achievements</div>
+      <div class="nav-item active" data-page="planner" role="button" tabindex="0" onclick="navigateTo('planner');closeSidebar()"><span class="nav-icon">📋</span> Weekly Planner</div>
+      <div class="nav-item" data-page="daily" role="button" tabindex="0" onclick="navigateTo('daily');closeSidebar()"><span class="nav-icon">📅</span> Daily Action Plan</div>
+      <div class="nav-item" data-page="clarity" role="button" tabindex="0" onclick="navigateTo('clarity');closeSidebar()"><span class="nav-icon">🧭</span> Clarity Workshop</div>
+      <div class="nav-item" data-page="cascade" role="button" tabindex="0" onclick="navigateTo('cascade');closeSidebar()"><span class="nav-icon">🎯</span> Goal Cascade</div>
+      <div class="nav-item" data-page="analytics" role="button" tabindex="0" onclick="navigateTo('analytics');closeSidebar()"><span class="nav-icon">📊</span> Analytics</div>
+      <div class="nav-item" data-page="braindump" role="button" tabindex="0" onclick="navigateTo('braindump');closeSidebar()"><span class="nav-icon">💡</span> Brain Dump</div>
+      <div class="nav-item" data-page="dream100" role="button" tabindex="0" onclick="navigateTo('dream100');closeSidebar()"><span class="nav-icon">⭐</span> Dream 100</div>
+      <div class="nav-item" data-page="achievements" role="button" tabindex="0" onclick="navigateTo('achievements');closeSidebar()"><span class="nav-icon">🏆</span> Achievements</div>
     </div>
     <div class="sidebar-footer">
       <div class="week-picker">
@@ -984,7 +984,7 @@ function navigateTo(page){
   if(page==='braindump')renderBrainDump();
   if(page==='dream100')renderDream100();
 }
-document.querySelectorAll('.nav-item').forEach(n=>n.addEventListener('click',()=>{navigateTo(n.dataset.page);closeSidebar()}));
+// Nav handled by inline onclick for iOS Safari compatibility
 
 function toggleSidebar(){const s=document.querySelector('.sidebar');const o=document.getElementById('sidebarOverlay');s.classList.toggle('open');o.classList.toggle('show')}
 function closeSidebar(){document.querySelector('.sidebar').classList.remove('open');document.getElementById('sidebarOverlay').classList.remove('show')}

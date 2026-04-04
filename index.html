@@ -278,6 +278,30 @@ input[type=checkbox] { width:16px; height:16px; accent-color:var(--purple); curs
 .bd-item .bd-time { font-size:0.7rem; color:var(--text2); flex-shrink:0; }
 @keyframes fadeUp { from{opacity:0;transform:translate(-50%,10px)} to{opacity:1;transform:translate(-50%,0)} }
 
+/* ─── Daily Action Plan ─── */
+.daily-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.daily-date-nav { display:flex; align-items:center; gap:12px; margin-bottom:20px; }
+.daily-date-nav .day-label { font-size:1.1rem; font-weight:700; flex:1; }
+.daily-date-nav button { padding:8px 14px; background:var(--bg); border:1px solid var(--border); border-radius:8px; color:var(--text2); font-size:0.85rem; font-weight:600; cursor:pointer; }
+.daily-date-nav button:hover { border-color:var(--purple); color:var(--purple); }
+.daily-date-nav input[type=date] { padding:8px 10px; background:var(--bg); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:0.85rem; font-family:inherit; outline:none; }
+.daily-date-nav input[type=date]::-webkit-calendar-picker-indicator { filter:invert(1); cursor:pointer; }
+.daily-mit { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--border); }
+.daily-mit:last-child { border-bottom:none; }
+.daily-mit .mit-num { width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:800; flex-shrink:0; color:#fff; }
+.daily-mit .mit-source { font-size:0.65rem; padding:2px 6px; border-radius:4px; flex-shrink:0; }
+.daily-todo-item { display:flex; align-items:center; gap:8px; padding:6px 0; }
+.daily-todo-item input[type=checkbox] { flex-shrink:0; }
+.daily-habit-item { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--border); }
+.daily-habit-item:last-child { border-bottom:none; }
+.daily-habit-item .habit-label { flex:1; font-size:0.85rem; }
+.daily-habit-item .habit-toggle { width:36px; height:20px; border-radius:10px; background:var(--bg); border:2px solid var(--border); cursor:pointer; position:relative; transition:all .2s; flex-shrink:0; }
+.daily-habit-item .habit-toggle::after { content:''; position:absolute; top:2px; left:2px; width:12px; height:12px; border-radius:50%; background:var(--text2); transition:all .2s; }
+.daily-habit-item .habit-toggle.on { background:var(--green); border-color:var(--green); }
+.daily-habit-item .habit-toggle.on::after { left:18px; background:#fff; }
+.meal-slot { margin-bottom:10px; }
+.meal-slot label { font-size:0.75rem; font-weight:600; color:var(--text2); text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:4px; }
+
 /* ─── Dream 100 ─── */
 .dream-item { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:12px 18px; margin-bottom:8px; display:flex; align-items:center; gap:12px; transition:all .15s; }
 .dream-item:hover { border-color:var(--orange); }
@@ -321,6 +345,7 @@ input[type=checkbox] { width:16px; height:16px; accent-color:var(--purple); curs
     </div>
     <div class="sidebar-nav">
       <div class="nav-item active" data-page="planner"><span class="nav-icon">📋</span> Weekly Planner</div>
+      <div class="nav-item" data-page="daily"><span class="nav-icon">📅</span> Daily Action Plan</div>
       <div class="nav-item" data-page="clarity"><span class="nav-icon">🧭</span> Clarity Workshop</div>
       <div class="nav-item" data-page="cascade"><span class="nav-icon">🎯</span> Goal Cascade</div>
       <div class="nav-item" data-page="analytics"><span class="nav-icon">📊</span> Analytics</div>
@@ -494,6 +519,92 @@ input[type=checkbox] { width:16px; height:16px; accent-color:var(--purple); curs
     </div>
 
     <!-- ════════════════════════════════════════ -->
+    <!-- ═══ DAILY ACTION PLAN ═══ -->
+    <div class="page" id="page-daily">
+      <div class="page-header">
+        <h2>📅 Daily Action Plan</h2>
+        <p>Your focused daily execution sheet</p>
+      </div>
+
+      <!-- Date nav -->
+      <div class="daily-date-nav">
+        <button onclick="changeDay(-1)">← Prev</button>
+        <button onclick="changeDay(0)" style="font-size:.78rem">Today</button>
+        <input type="date" id="dailyDatePicker" onchange="jumpToDay(this.value)">
+        <button onclick="changeDay(1)">Next →</button>
+        <div class="day-label" id="dailyDayLabel"></div>
+      </div>
+
+      <div class="daily-grid">
+        <!-- Left column -->
+        <div class="stack">
+          <!-- Gratitude -->
+          <div class="card">
+            <div class="card-head bg-pink">🙏 Gratitude</div>
+            <div class="card-body" id="dailyGratitude"></div>
+          </div>
+
+          <!-- 3 MITs -->
+          <div class="card">
+            <div class="card-head bg-purple">🎯 3 Most Important Tasks</div>
+            <div class="card-body" id="dailyMITs">
+              <p style="font-size:0.75rem;color:var(--text2);margin-bottom:10px">Pulled from your Purpose & Passion priorities</p>
+            </div>
+          </div>
+
+          <!-- Todo list -->
+          <div class="card">
+            <div class="card-head bg-blue">✅ Today's Todos</div>
+            <div class="card-body">
+              <div id="dailyTodos"></div>
+              <div style="display:flex;gap:8px;margin-top:8px">
+                <input class="inp inp-sm" id="newTodoInput" placeholder="Add a task..." onkeydown="if(event.key==='Enter')addDailyTodo()">
+                <button onclick="addDailyTodo()" style="padding:6px 12px;background:var(--blue);border:none;color:#fff;border-radius:6px;font-size:0.78rem;font-weight:600;cursor:pointer">+</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Meal plan -->
+          <div class="card">
+            <div class="card-head bg-green">🥗 Meal Plan</div>
+            <div class="card-body" id="dailyMeals"></div>
+          </div>
+        </div>
+
+        <!-- Right column -->
+        <div class="stack">
+          <!-- Habits -->
+          <div class="card">
+            <div class="card-head bg-orange">🏆 Today's Habits</div>
+            <div class="card-body">
+              <p style="font-size:0.75rem;color:var(--text2);margin-bottom:10px">Synced with your weekly habit tracker</p>
+              <div id="dailyHabits"></div>
+            </div>
+          </div>
+
+          <!-- Meditation -->
+          <div class="card">
+            <div class="card-head bg-teal">🧘 Meditation Journal</div>
+            <div class="card-body">
+              <div class="meal-slot"><label>Duration (min)</label><input class="inp inp-sm" id="dailyMedDuration" type="number" placeholder="20" oninput="saveDailyData()"></div>
+              <div class="meal-slot"><label>Type</label><input class="inp inp-sm" id="dailyMedType" placeholder="Visualization, breathwork, mindfulness..." oninput="saveDailyData()"></div>
+              <div class="meal-slot"><label>Notes / Insights</label><textarea class="inp" id="dailyMedNotes" rows="3" placeholder="What came up during meditation..." oninput="saveDailyData()"></textarea></div>
+            </div>
+          </div>
+
+          <!-- Daily reflection -->
+          <div class="card">
+            <div class="card-head bg-gray">📝 Daily Reflection</div>
+            <div class="card-body">
+              <div class="meal-slot"><label>What went well today?</label><textarea class="inp" id="dailyWentWell" rows="2" placeholder="Wins, progress, good moments..." oninput="saveDailyData()"></textarea></div>
+              <div class="meal-slot"><label>What could I improve?</label><textarea class="inp" id="dailyImprove" rows="2" placeholder="Lessons, adjustments..." oninput="saveDailyData()"></textarea></div>
+              <div class="meal-slot"><label>What am I committed to tomorrow?</label><textarea class="inp" id="dailyTomorrow" rows="2" placeholder="Top priorities for tomorrow..." oninput="saveDailyData()"></textarea></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- PAGE 2: CLARITY WORKSHOP                -->
     <!-- ════════════════════════════════════════ -->
     <div class="page" id="page-clarity">
@@ -759,6 +870,7 @@ function navigateTo(page){
   document.getElementById('page-'+page).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.page===page));
   document.querySelectorAll('.mobile-nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===page));
+  if(page==='daily')renderDaily();
   if(page==='analytics')renderAnalytics();
   if(page==='achievements')renderAchievements();
   if(page==='braindump')renderBrainDump();
@@ -1340,6 +1452,169 @@ function initQuotes(){
 }
 
 // ═══════════════════════════════════════════
+// DAILY ACTION PLAN
+// ═══════════════════════════════════════════
+let currentDay=new Date();currentDay.setHours(0,0,0,0);
+
+function dayKey(){return'lm_day_'+currentDay.toISOString().slice(0,10)}
+function getDayIdx(){
+  const wk=getMonday(new Date(currentDay));
+  const diff=Math.round((currentDay-wk)/(1000*60*60*24));
+  return Math.max(0,Math.min(6,diff));
+}
+function getDayWeekKey(){return'lm_'+getMonday(new Date(currentDay)).toISOString().slice(0,10)}
+
+function changeDay(d){
+  saveDailyData();
+  if(d===0){currentDay=new Date();currentDay.setHours(0,0,0,0)}
+  else{currentDay=new Date(currentDay.getTime()+d*86400000)}
+  renderDaily();
+}
+function jumpToDay(v){if(!v)return;saveDailyData();currentDay=new Date(v+'T12:00:00');currentDay.setHours(0,0,0,0);renderDaily()}
+
+function getDailyData(){const r=localStorage.getItem(dayKey());return r?JSON.parse(r):{}}
+function saveDailyData(){
+  const d=getDailyData();
+  // Gratitude
+  d.gratitude=[];document.querySelectorAll('#dailyGratitude input').forEach(i=>d.gratitude.push(i.value));
+  // Meals
+  d.meals={};['breakfast','snack1','lunch','snack2','dinner'].forEach(m=>{const el=document.getElementById('meal_'+m);if(el)d.meals[m]=el.value});
+  // Meditation
+  d.med_duration=document.getElementById('dailyMedDuration').value;
+  d.med_type=document.getElementById('dailyMedType').value;
+  d.med_notes=document.getElementById('dailyMedNotes').value;
+  // Reflection
+  d.went_well=document.getElementById('dailyWentWell').value;
+  d.improve=document.getElementById('dailyImprove').value;
+  d.tomorrow=document.getElementById('dailyTomorrow').value;
+  // Todos
+  d.todos=[];document.querySelectorAll('#dailyTodos .daily-todo-item').forEach(ti=>{
+    d.todos.push({text:ti.querySelector('input[type=text]').value,done:ti.querySelector('input[type=checkbox]').checked});
+  });
+  localStorage.setItem(dayKey(),JSON.stringify(d));
+}
+
+function renderDaily(){
+  // Date label
+  const opts={weekday:'long',month:'long',day:'numeric',year:'numeric'};
+  document.getElementById('dailyDayLabel').textContent=currentDay.toLocaleDateString('en-US',opts);
+  document.getElementById('dailyDatePicker').value=currentDay.toISOString().slice(0,10);
+
+  const d=getDailyData();
+  const dayIdx=getDayIdx();
+
+  // Gratitude (5 slots)
+  const grat=document.getElementById('dailyGratitude');
+  const gItems=d.gratitude||['','','','',''];
+  grat.innerHTML=gItems.map((g,i)=>`<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px"><span style="color:var(--pink)">♥</span><input class="inp inp-sm" value="${esc(g)}" placeholder="I'm grateful for..." oninput="saveDailyData()"></div>`).join('');
+
+  // MITs — pull from weekly priorities
+  const wData=localStorage.getItem(getDayWeekKey());
+  const weekData=wData?JSON.parse(wData):getDefault();
+  const mitsEl=document.getElementById('dailyMITs');
+  let mitsHtml='<p style="font-size:0.75rem;color:var(--text2);margin-bottom:10px">Pulled from your Purpose & Passion priorities</p>';
+
+  // Get uncompleted purpose tasks (priority1)
+  const purposeTasks=(weekData.priority1||[]).filter(p=>p.task&&!p.done);
+  const passionTasks=(weekData.priority2||[]).filter(p=>p.task&&!p.done);
+  const allMITs=[...purposeTasks.map(t=>({...t,source:'Purpose'})),...passionTasks.map(t=>({...t,source:'Passion'}))].slice(0,3);
+
+  // Pad to 3
+  while(allMITs.length<3)allMITs.push({task:'',source:'—',plan:false,done:false});
+
+  const mitColors={Purpose:'var(--blue)',Passion:'var(--pink)','—':'var(--text2)'};
+  allMITs.forEach((mit,i)=>{
+    mitsHtml+=`<div class="daily-mit">
+      <div class="mit-num" style="background:${mitColors[mit.source]}">${i+1}</div>
+      <span style="flex:1;font-size:0.9rem">${esc(mit.task)||'<span style="color:var(--text2);font-style:italic">No task</span>'}</span>
+      <span class="mit-source" style="background:${mitColors[mit.source]}20;color:${mitColors[mit.source]};border:1px solid ${mitColors[mit.source]}40">${mit.source}</span>
+      ${mit.task?`<input type="checkbox" ${mit.done?'checked':''} onchange="toggleMIT(${i},'${mit.source}','${esc(mit.task).replace(/'/g,"\\'")}',this.checked)">`:''}
+    </div>`;
+  });
+  mitsEl.innerHTML=mitsHtml;
+
+  // Habits — pull from weekly
+  const habitsEl=document.getElementById('dailyHabits');
+  const habits=weekData.habits||[];
+  habitsEl.innerHTML=habits.map((h,i)=>{
+    const isOn=h.checks[dayIdx]||false;
+    return`<div class="daily-habit-item">
+      <span class="habit-label">${esc(h.name)}</span>
+      <div class="habit-toggle ${isOn?'on':''}" onclick="toggleDailyHabit(${i},${dayIdx},this)"></div>
+    </div>`;
+  }).join('');
+
+  // Meals
+  const meals=d.meals||{};
+  const mealsEl=document.getElementById('dailyMeals');
+  mealsEl.innerHTML=['Breakfast','Snack 1','Lunch','Snack 2','Dinner'].map((m,i)=>{
+    const key=['breakfast','snack1','lunch','snack2','dinner'][i];
+    return`<div class="meal-slot"><label>${m}</label><input class="inp inp-sm" id="meal_${key}" value="${esc(meals[key]||'')}" placeholder="What are you eating?" oninput="saveDailyData()"></div>`;
+  }).join('');
+
+  // Meditation
+  document.getElementById('dailyMedDuration').value=d.med_duration||'';
+  document.getElementById('dailyMedType').value=d.med_type||'';
+  document.getElementById('dailyMedNotes').value=d.med_notes||'';
+
+  // Reflection
+  document.getElementById('dailyWentWell').value=d.went_well||'';
+  document.getElementById('dailyImprove').value=d.improve||'';
+  document.getElementById('dailyTomorrow').value=d.tomorrow||'';
+
+  // Todos
+  const todosEl=document.getElementById('dailyTodos');
+  const todos=d.todos||[];
+  todosEl.innerHTML=todos.map((t,i)=>`<div class="daily-todo-item">
+    <input type="checkbox" ${t.done?'checked':''} onchange="saveDailyData()">
+    <input type="text" class="inp inp-sm" value="${esc(t.text)}" style="flex:1" oninput="saveDailyData()">
+    <button onclick="removeDailyTodo(${i})" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:0.8rem;padding:4px" title="Remove">✕</button>
+  </div>`).join('');
+}
+
+function toggleDailyHabit(habitIdx,dayIdx,el){
+  // Update weekly data
+  const wKey=getDayWeekKey();
+  const r=localStorage.getItem(wKey);
+  const weekData=r?JSON.parse(r):getDefault();
+  if(weekData.habits[habitIdx]){
+    weekData.habits[habitIdx].checks[dayIdx]=!weekData.habits[habitIdx].checks[dayIdx];
+    localStorage.setItem(wKey,JSON.stringify(weekData));
+    el.classList.toggle('on');
+    // If current week matches planner week, refresh planner too
+    if(wKey===sKey())loadData();
+  }
+}
+
+function toggleMIT(idx,source,taskText,checked){
+  const wKey=getDayWeekKey();
+  const r=localStorage.getItem(wKey);
+  const weekData=r?JSON.parse(r):getDefault();
+  const prioKey=source==='Purpose'?'priority1':'priority2';
+  const tasks=weekData[prioKey]||[];
+  const match=tasks.find(t=>t.task===taskText);
+  if(match){match.done=checked;localStorage.setItem(wKey,JSON.stringify(weekData));if(wKey===sKey())loadData()}
+}
+
+function addDailyTodo(){
+  const inp=document.getElementById('newTodoInput');
+  const text=inp.value.trim();
+  if(!text)return;
+  const d=getDailyData();
+  d.todos=d.todos||[];
+  d.todos.push({text:text,done:false});
+  localStorage.setItem(dayKey(),JSON.stringify(d));
+  inp.value='';
+  renderDaily();
+}
+
+function removeDailyTodo(idx){
+  const d=getDailyData();
+  d.todos.splice(idx,1);
+  localStorage.setItem(dayKey(),JSON.stringify(d));
+  renderDaily();
+}
+
 // ═══════════════════════════════════════════
 // BRAIN DUMP
 // ═══════════════════════════════════════════
@@ -1499,6 +1774,7 @@ function initApp(){
   initClarity();
   initCascade();
   initQuotes();
+  renderDaily();
   renderBrainDump();
   renderDream100();
 }

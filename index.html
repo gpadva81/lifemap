@@ -261,6 +261,22 @@ input[type=checkbox] { width:16px; height:16px; accent-color:var(--purple); curs
 
 /* Confetti */
 .confetti-container { position:fixed; inset:0; pointer-events:none; z-index:10000; }
+/* ─── Brain Dump ─── */
+.bd-item { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px 18px; margin-bottom:10px; display:flex; align-items:center; gap:12px; transition:all .15s; }
+.bd-item:hover { border-color:var(--orange); }
+.bd-item .bd-text { flex:1; font-size:0.92rem; }
+.bd-item .bd-text input { width:100%; background:transparent; border:none; color:var(--text); font-size:0.92rem; font-family:inherit; outline:none; }
+.bd-item .bd-actions { display:flex; gap:6px; flex-shrink:0; }
+.bd-item .bd-btn { padding:5px 10px; border:1px solid var(--border); border-radius:6px; background:var(--bg); color:var(--text2); font-size:0.72rem; font-weight:600; cursor:pointer; white-space:nowrap; transition:all .15s; }
+.bd-item .bd-btn:hover { border-color:var(--purple); color:var(--purple); }
+.bd-item .bd-btn.passion { border-color:var(--pink); color:var(--pink); }
+.bd-item .bd-btn.passion:hover { background:var(--pink); color:#fff; }
+.bd-item .bd-btn.purpose { border-color:var(--blue); color:var(--blue); }
+.bd-item .bd-btn.purpose:hover { background:var(--blue); color:#fff; }
+.bd-item .bd-btn.delete { border-color:var(--red); color:var(--red); }
+.bd-item .bd-btn.delete:hover { background:var(--red); color:#fff; }
+.bd-item .bd-time { font-size:0.7rem; color:var(--text2); flex-shrink:0; }
+@keyframes fadeUp { from{opacity:0;transform:translate(-50%,10px)} to{opacity:1;transform:translate(-50%,0)} }
 </style>
 </head>
 <body>
@@ -290,6 +306,7 @@ input[type=checkbox] { width:16px; height:16px; accent-color:var(--purple); curs
       <div class="nav-item" data-page="clarity"><span class="nav-icon">🧭</span> Clarity Workshop</div>
       <div class="nav-item" data-page="cascade"><span class="nav-icon">🎯</span> Goal Cascade</div>
       <div class="nav-item" data-page="analytics"><span class="nav-icon">📊</span> Analytics</div>
+      <div class="nav-item" data-page="braindump"><span class="nav-icon">💡</span> Brain Dump</div>
       <div class="nav-item" data-page="achievements"><span class="nav-icon">🏆</span> Achievements</div>
     </div>
     <div class="sidebar-footer">
@@ -581,6 +598,35 @@ input[type=checkbox] { width:16px; height:16px; accent-color:var(--purple); curs
     <!-- ════════════════════════════════════════ -->
     <!-- PAGE 5: ACHIEVEMENTS                    -->
     <!-- ════════════════════════════════════════ -->
+    <!-- ═══ BRAIN DUMP ═══ -->
+    <div class="page" id="page-braindump">
+      <div class="page-header">
+        <h2>💡 Brain Dump</h2>
+        <p>Capture random ideas, then move them into your Passion or Purpose priorities</p>
+      </div>
+
+      <!-- Add new idea -->
+      <div class="card" style="margin-bottom:24px">
+        <div class="card-head bg-orange">💭 New Idea</div>
+        <div class="card-body" style="display:flex;gap:8px">
+          <input class="inp" id="newIdeaInput" placeholder="What's on your mind? Type an idea and hit Enter..." onkeydown="if(event.key==='Enter')addIdea()">
+          <button class="btn btn-primary" onclick="addIdea()" style="white-space:nowrap;padding:8px 20px;background:var(--orange);border:none;color:#111;border-radius:8px;font-weight:700">+ Add</button>
+        </div>
+      </div>
+
+      <!-- Ideas list -->
+      <div id="braindumpList"></div>
+
+      <!-- Empty state -->
+      <div id="braindumpEmpty" class="card" style="display:none">
+        <div class="card-body" style="text-align:center;padding:48px;color:var(--text2)">
+          <div style="font-size:3rem;margin-bottom:12px">🧠</div>
+          <p style="font-size:1.1rem;font-weight:600;margin-bottom:4px">Your brain dump is empty</p>
+          <p>Start capturing ideas above — move them to priorities when you're ready</p>
+        </div>
+      </div>
+    </div>
+
     <div class="page" id="page-achievements">
       <div class="page-header">
         <h2>🏆 Achievements</h2>
@@ -630,6 +676,7 @@ function navigateTo(page){
   document.querySelectorAll('.mobile-nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===page));
   if(page==='analytics')renderAnalytics();
   if(page==='achievements')renderAchievements();
+  if(page==='braindump')renderBrainDump();
 }
 document.querySelectorAll('.nav-item').forEach(n=>n.addEventListener('click',()=>navigateTo(n.dataset.page)));
 document.querySelectorAll('.mobile-nav button').forEach(b=>b.addEventListener('click',()=>navigateTo(b.dataset.page)));
@@ -1207,6 +1254,95 @@ function initQuotes(){
 }
 
 // ═══════════════════════════════════════════
+// ═══════════════════════════════════════════
+// BRAIN DUMP
+// ═══════════════════════════════════════════
+function getBrainDump(){const r=localStorage.getItem('lm_braindump');return r?JSON.parse(r):[]}
+function saveBrainDump(items){localStorage.setItem('lm_braindump',JSON.stringify(items));renderBrainDump()}
+
+function addIdea(){
+  const inp=document.getElementById('newIdeaInput');
+  const text=inp.value.trim();
+  if(!text)return;
+  const items=getBrainDump();
+  items.unshift({id:Date.now(),text:text,created:new Date().toISOString()});
+  saveBrainDump(items);
+  inp.value='';
+  inp.focus();
+}
+
+function renderBrainDump(){
+  const items=getBrainDump();
+  const list=document.getElementById('braindumpList');
+  const empty=document.getElementById('braindumpEmpty');
+  if(!items.length){list.innerHTML='';empty.style.display='block';return}
+  empty.style.display='none';
+  list.innerHTML=items.map((item,i)=>{
+    const d=new Date(item.created);
+    const time=d.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+    return `<div class="bd-item" data-idx="${i}">
+      <div class="bd-text"><input value="${esc(item.text)}" oninput="updateIdea(${i},this.value)"></div>
+      <span class="bd-time">${time}</span>
+      <div class="bd-actions">
+        <button class="bd-btn passion" onclick="moveToPassion(${i})" title="Move to Passion (Priority 2)">🔥 Passion</button>
+        <button class="bd-btn purpose" onclick="moveToPurpose(${i})" title="Move to Purpose (Priority 1)">🎯 Purpose</button>
+        <button class="bd-btn delete" onclick="deleteIdea(${i})" title="Delete">✕</button>
+      </div>
+    </div>`}).join('');
+}
+
+function updateIdea(idx,val){const items=getBrainDump();if(items[idx]){items[idx].text=val;localStorage.setItem('lm_braindump',JSON.stringify(items))}}
+
+function deleteIdea(idx){
+  const items=getBrainDump();
+  items.splice(idx,1);
+  saveBrainDump(items);
+}
+
+function moveToPassion(idx){
+  const items=getBrainDump();
+  const idea=items[idx];
+  if(!idea)return;
+  // Add to Priority 2 (Passion / Secondary)
+  const r=localStorage.getItem(sKey());
+  const d=r?JSON.parse(r):getDefault();
+  d.priority2=d.priority2||[];
+  d.priority2.push({task:idea.text,plan:false,done:false});
+  localStorage.setItem(sKey(),JSON.stringify(d));
+  // Remove from brain dump
+  items.splice(idx,1);
+  saveBrainDump(items);
+  // Refresh planner if visible
+  loadData();
+  showMoveNotice('🔥 Moved to Passion priorities!');
+}
+
+function moveToPurpose(idx){
+  const items=getBrainDump();
+  const idea=items[idx];
+  if(!idea)return;
+  // Add to Priority 1 (Purpose / First Priority)
+  const r=localStorage.getItem(sKey());
+  const d=r?JSON.parse(r):getDefault();
+  d.priority1=d.priority1||[];
+  d.priority1.push({task:idea.text,plan:false,done:false});
+  localStorage.setItem(sKey(),JSON.stringify(d));
+  // Remove from brain dump
+  items.splice(idx,1);
+  saveBrainDump(items);
+  loadData();
+  showMoveNotice('🎯 Moved to Purpose priorities!');
+}
+
+function showMoveNotice(msg){
+  const n=document.createElement('div');
+  n.textContent=msg;
+  n.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border);color:var(--text);padding:12px 24px;border-radius:10px;font-size:0.9rem;font-weight:600;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,0.4);animation:fadeUp .3s ease';
+  document.body.appendChild(n);
+  setTimeout(()=>n.remove(),2000);
+}
+
+// ═══════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════
 function initApp(){
@@ -1215,6 +1351,7 @@ function initApp(){
   initClarity();
   initCascade();
   initQuotes();
+  renderBrainDump();
 }
 </script>
 </body>

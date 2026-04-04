@@ -277,6 +277,24 @@ input[type=checkbox] { width:16px; height:16px; accent-color:var(--purple); curs
 .bd-item .bd-btn.delete:hover { background:var(--red); color:#fff; }
 .bd-item .bd-time { font-size:0.7rem; color:var(--text2); flex-shrink:0; }
 @keyframes fadeUp { from{opacity:0;transform:translate(-50%,10px)} to{opacity:1;transform:translate(-50%,0)} }
+
+/* ─── Dream 100 ─── */
+.dream-item { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:12px 18px; margin-bottom:8px; display:flex; align-items:center; gap:12px; transition:all .15s; }
+.dream-item:hover { border-color:var(--orange); }
+.dream-item.done { opacity:0.6; }
+.dream-item.done .dream-text input { text-decoration:line-through; color:var(--text2); }
+.dream-item .dream-check { width:22px; height:22px; border-radius:50%; border:2px solid var(--border); cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:all .15s; }
+.dream-item .dream-check:hover { border-color:var(--green); }
+.dream-item .dream-check.checked { background:var(--green); border-color:var(--green); }
+.dream-item .dream-check.checked::after { content:'✓'; color:#111; font-size:0.75rem; font-weight:800; }
+.dream-item .dream-text { flex:1; }
+.dream-item .dream-text input { width:100%; background:transparent; border:none; color:var(--text); font-size:0.9rem; font-family:inherit; outline:none; }
+.dream-item .dream-cat { font-size:0.7rem; padding:3px 8px; border-radius:6px; background:var(--bg); color:var(--text2); border:1px solid var(--border); flex-shrink:0; }
+.dream-item .dream-year { font-size:0.72rem; color:var(--text2); flex-shrink:0; }
+.dream-item .dream-year select { background:var(--bg); border:1px solid var(--border); color:var(--text2); border-radius:4px; font-size:0.72rem; padding:2px 4px; font-family:inherit; outline:none; cursor:pointer; }
+.dream-item .dream-del { background:none; border:none; color:var(--text2); cursor:pointer; font-size:0.8rem; padding:4px; opacity:0; transition:opacity .15s; }
+.dream-item:hover .dream-del { opacity:1; }
+.dream-item .dream-del:hover { color:var(--red); }
 </style>
 </head>
 <body>
@@ -307,6 +325,7 @@ input[type=checkbox] { width:16px; height:16px; accent-color:var(--purple); curs
       <div class="nav-item" data-page="cascade"><span class="nav-icon">🎯</span> Goal Cascade</div>
       <div class="nav-item" data-page="analytics"><span class="nav-icon">📊</span> Analytics</div>
       <div class="nav-item" data-page="braindump"><span class="nav-icon">💡</span> Brain Dump</div>
+      <div class="nav-item" data-page="dream100"><span class="nav-icon">⭐</span> Dream 100</div>
       <div class="nav-item" data-page="achievements"><span class="nav-icon">🏆</span> Achievements</div>
     </div>
     <div class="sidebar-footer">
@@ -627,6 +646,72 @@ input[type=checkbox] { width:16px; height:16px; accent-color:var(--purple); curs
       </div>
     </div>
 
+    <!-- ═══ DREAM 100 ═══ -->
+    <div class="page" id="page-dream100">
+      <div class="page-header">
+        <h2>⭐ Dream 100</h2>
+        <p>100 epic experiences, goals & adventures to tackle in your lifetime — check them off as you go</p>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-body" style="display:flex;align-items:center;gap:16px">
+          <div style="flex:1">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-weight:700;font-size:0.9rem">Progress</span><span id="dream100Count" style="font-size:0.85rem;color:var(--text2)">0 / 100</span></div>
+            <div style="height:10px;background:var(--bg);border-radius:5px;overflow:hidden"><div id="dream100Bar" style="height:100%;background:linear-gradient(90deg,var(--orange),var(--pink));border-radius:5px;transition:width .3s;width:0%"></div></div>
+          </div>
+          <div id="dream100Pct" style="font-size:1.8rem;font-weight:800;background:linear-gradient(135deg,var(--orange),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent">0%</div>
+        </div>
+      </div>
+
+      <!-- Add new dream -->
+      <div style="display:flex;gap:8px;margin-bottom:20px">
+        <input class="inp" id="newDreamInput" placeholder="Add a dream, adventure, or life goal..." onkeydown="if(event.key==='Enter')addDream()">
+        <select class="inp" id="newDreamCategory" style="width:160px;flex-shrink:0">
+          <option value="Adventure">🌍 Adventure</option>
+          <option value="Career">💼 Career</option>
+          <option value="Creative">🎨 Creative</option>
+          <option value="Family">👨‍👩‍👧‍👦 Family</option>
+          <option value="Fitness">💪 Fitness</option>
+          <option value="Financial">💰 Financial</option>
+          <option value="Learning">📚 Learning</option>
+          <option value="Social">🤝 Social</option>
+          <option value="Spiritual">🧘 Spiritual</option>
+          <option value="Fun">🎉 Fun</option>
+        </select>
+        <button class="btn btn-primary" onclick="addDream()" style="white-space:nowrap;padding:8px 20px;background:linear-gradient(135deg,var(--orange),var(--pink));border:none;color:#fff;border-radius:8px;font-weight:700">+ Add</button>
+      </div>
+
+      <!-- Filter tabs -->
+      <div id="dreamFilters" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">
+        <button class="bd-btn" style="border-color:var(--purple);color:var(--purple)" onclick="filterDreams('all')">All</button>
+        <button class="bd-btn" onclick="filterDreams('pending')">⏳ Pending</button>
+        <button class="bd-btn" onclick="filterDreams('done')">✅ Done</button>
+        <button class="bd-btn" onclick="filterDreams('Adventure')">🌍</button>
+        <button class="bd-btn" onclick="filterDreams('Career')">💼</button>
+        <button class="bd-btn" onclick="filterDreams('Creative')">🎨</button>
+        <button class="bd-btn" onclick="filterDreams('Family')">👨‍👩‍👧‍👦</button>
+        <button class="bd-btn" onclick="filterDreams('Fitness')">💪</button>
+        <button class="bd-btn" onclick="filterDreams('Financial')">💰</button>
+        <button class="bd-btn" onclick="filterDreams('Learning')">📚</button>
+        <button class="bd-btn" onclick="filterDreams('Social')">🤝</button>
+        <button class="bd-btn" onclick="filterDreams('Spiritual')">🧘</button>
+        <button class="bd-btn" onclick="filterDreams('Fun')">🎉</button>
+      </div>
+
+      <!-- Dream list -->
+      <div id="dream100List"></div>
+
+      <!-- Empty state -->
+      <div id="dream100Empty" class="card" style="display:none">
+        <div class="card-body" style="text-align:center;padding:48px;color:var(--text2)">
+          <div style="font-size:3rem;margin-bottom:12px">⭐</div>
+          <p style="font-size:1.1rem;font-weight:600;margin-bottom:4px">Start building your Dream 100</p>
+          <p>Add adventures, milestones, and life goals you want to experience</p>
+        </div>
+      </div>
+    </div>
+
     <div class="page" id="page-achievements">
       <div class="page-header">
         <h2>🏆 Achievements</h2>
@@ -677,6 +762,7 @@ function navigateTo(page){
   if(page==='analytics')renderAnalytics();
   if(page==='achievements')renderAchievements();
   if(page==='braindump')renderBrainDump();
+  if(page==='dream100')renderDream100();
 }
 document.querySelectorAll('.nav-item').forEach(n=>n.addEventListener('click',()=>navigateTo(n.dataset.page)));
 document.querySelectorAll('.mobile-nav button').forEach(b=>b.addEventListener('click',()=>navigateTo(b.dataset.page)));
@@ -1343,6 +1429,68 @@ function showMoveNotice(msg){
 }
 
 // ═══════════════════════════════════════════
+// DREAM 100
+// ═══════════════════════════════════════════
+const DREAM_EMOJIS={Adventure:'🌍',Career:'💼',Creative:'🎨',Family:'👨‍👩‍👧‍👦',Fitness:'💪',Financial:'💰',Learning:'📚',Social:'🤝',Spiritual:'🧘',Fun:'🎉'};
+let dreamFilter='all';
+function getDreams(){const r=localStorage.getItem('lm_dream100');return r?JSON.parse(r):[]}
+function saveDreams(items){localStorage.setItem('lm_dream100',JSON.stringify(items));renderDream100()}
+
+function addDream(){
+  const inp=document.getElementById('newDreamInput');
+  const cat=document.getElementById('newDreamCategory').value;
+  const text=inp.value.trim();
+  if(!text)return;
+  const items=getDreams();
+  items.push({id:Date.now(),text:text,category:cat,done:false,targetYear:'',completedDate:null,created:new Date().toISOString()});
+  saveDreams(items);
+  inp.value='';
+  inp.focus();
+}
+
+function renderDream100(){
+  const items=getDreams();
+  const list=document.getElementById('dream100List');
+  const empty=document.getElementById('dream100Empty');
+  const done=items.filter(i=>i.done).length;
+  const total=items.length;
+  document.getElementById('dream100Count').textContent=`${done} / ${total||100}`;
+  document.getElementById('dream100Bar').style.width=`${total?Math.round(done/Math.max(total,100)*100):0}%`;
+  document.getElementById('dream100Pct').textContent=`${total?Math.round(done/Math.max(total,100)*100):0}%`;
+
+  let filtered=items;
+  if(dreamFilter==='pending')filtered=items.filter(i=>!i.done);
+  else if(dreamFilter==='done')filtered=items.filter(i=>i.done);
+  else if(dreamFilter!=='all')filtered=items.filter(i=>i.category===dreamFilter);
+
+  if(!filtered.length&&!items.length){list.innerHTML='';empty.style.display='block';return}
+  empty.style.display='none';
+
+  const currentYear=new Date().getFullYear();
+  const yearOpts=Array.from({length:20},(_,i)=>`<option value="${currentYear+i}">${currentYear+i}</option>`).join('');
+
+  list.innerHTML=filtered.map((item)=>{
+    const idx=items.indexOf(item);
+    return `<div class="dream-item ${item.done?'done':''}">
+      <div class="dream-check ${item.done?'checked':''}" onclick="toggleDream(${idx})"></div>
+      <div class="dream-text"><input value="${esc(item.text)}" oninput="updateDream(${idx},'text',this.value)"></div>
+      <span class="dream-cat">${DREAM_EMOJIS[item.category]||'⭐'} ${item.category}</span>
+      <span class="dream-year"><select onchange="updateDream(${idx},'targetYear',this.value)"><option value="">Year?</option>${yearOpts.replace(`value="${item.targetYear}"`,`value="${item.targetYear}" selected`)}</select></span>
+      <button class="dream-del" onclick="deleteDream(${idx})" title="Delete">✕</button>
+    </div>`}).join('');
+}
+
+function toggleDream(idx){const items=getDreams();if(items[idx]){items[idx].done=!items[idx].done;items[idx].completedDate=items[idx].done?new Date().toISOString():null;saveDreams(items)}}
+function updateDream(idx,field,val){const items=getDreams();if(items[idx]){items[idx][field]=val;localStorage.setItem('lm_dream100',JSON.stringify(items))}}
+function deleteDream(idx){const items=getDreams();items.splice(idx,1);saveDreams(items)}
+function filterDreams(f){
+  dreamFilter=f;
+  document.querySelectorAll('#dreamFilters .bd-btn').forEach(b=>{b.style.borderColor='var(--border)';b.style.color='var(--text2)'});
+  event.target.style.borderColor='var(--purple)';event.target.style.color='var(--purple)';
+  renderDream100();
+}
+
+// ═══════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════
 function initApp(){
@@ -1352,6 +1500,7 @@ function initApp(){
   initCascade();
   initQuotes();
   renderBrainDump();
+  renderDream100();
 }
 </script>
 </body>

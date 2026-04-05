@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0f0f1a">
 <title>Life Map — Gabriel Padva</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://unpkg.com/convex@1.33.0/dist/browser.bundle.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -971,38 +971,31 @@ async function tryUnlock(){const i=document.getElementById('pwInput'),h=await sh
 document.getElementById('pwInput').addEventListener('keydown',e=>{if(e.key==='Enter')tryUnlock()});
 
 // ═══════════════════════════════════════════
-// SUPABASE CLOUD SYNC
+// CONVEX CLOUD SYNC
 // ═══════════════════════════════════════════
-const SUPABASE_URL='https://uuurwooqkumzujdosjpa.supabase.co';
-const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1dXJ3b29xa3VtenVqZG9zanBhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NzI4NDksImV4cCI6MjA5MDE0ODg0OX0.whThvdKYUqf12dspZbvm_nrDDOh6rav5leqiY2KcyHM';
-const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
-
-// Keys we sync to cloud
-const SYNC_PREFIXES=['lm_'];
+const CONVEX_URL='https://charming-marlin-119.convex.cloud';
+const convexClient=new convex.ConvexHttpClient(CONVEX_URL);
 
 // Pull all cloud data into localStorage (called on unlock, before initApp)
 async function cloudPull(){
   try{
-    const{data,error}=await sb.from('lifemap_data').select('key,value,updated_at');
-    if(error){console.warn('Cloud pull failed:',error);return}
+    const data=await convexClient.query('lifemap:getAll',{});
     if(!data||!data.length){console.log('No cloud data yet');return}
     data.forEach(row=>{
-      const local=localStorage.getItem(row.key);
       // Cloud wins: overwrite local (cloud is source of truth for cross-device sync)
-      // Only skip if local is newer based on a stored timestamp
       const localMeta=localStorage.getItem('_meta_'+row.key);
       const localTs=localMeta?parseInt(localMeta):0;
       const cloudTs=new Date(row.updated_at).getTime();
       if(cloudTs>=localTs){
-        localStorage.setItem(row.key,JSON.stringify(row.value));
-        localStorage.setItem('_meta_'+row.key,cloudTs.toString());
+        _origSetItem(row.key,row.value);
+        _origSetItem('_meta_'+row.key,cloudTs.toString());
       }
     });
-    console.log(`☁️ Pulled ${data.length} items from cloud`);
+    console.log(`☁️ Pulled ${data.length} items from Convex`);
   }catch(e){console.warn('Cloud pull error:',e)}
 }
 
-// Push a single key to cloud
+// Push keys to cloud (debounced)
 let _cloudQueue={};
 let _cloudTimer=null;
 function cloudPush(key){
@@ -1014,18 +1007,15 @@ async function _flushCloud(){
   const keys=Object.keys(_cloudQueue);
   _cloudQueue={};
   if(!keys.length)return;
-  const rows=keys.map(k=>{
+  const items=keys.map(k=>{
     const raw=localStorage.getItem(k);
-    let val;
-    try{val=JSON.parse(raw)}catch(e){val=raw}
     const now=new Date().toISOString();
-    localStorage.setItem('_meta_'+k,Date.now().toString());
-    return{key:k,value:val,updated_at:now};
+    _origSetItem('_meta_'+k,Date.now().toString());
+    return{key:k,value:raw,updated_at:now};
   });
   try{
-    const{error}=await sb.from('lifemap_data').upsert(rows,{onConflict:'key'});
-    if(error)console.warn('Cloud push failed:',error);
-    else console.log(`☁️ Pushed ${rows.length} items to cloud`);
+    await convexClient.mutation('lifemap:putBatch',{items});
+    console.log(`☁️ Pushed ${items.length} items to Convex`);
   }catch(e){console.warn('Cloud push error:',e)}
 }
 

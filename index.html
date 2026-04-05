@@ -7,6 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0f0f1a">
 <title>Life Map — Gabriel Padva</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -966,9 +967,102 @@ input[type=checkbox] { width:16px; height:16px; accent-color:var(--purple); curs
 const PW_HASH='8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92';
 async function sha256(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('')}
 async function tryUnlock(){const i=document.getElementById('pwInput'),h=await sha256(i.value);if(h===PW_HASH){sessionStorage.setItem('lm_auth','1');unlock()}else{i.classList.add('shake');i.value='';setTimeout(()=>i.classList.remove('shake'),500)}}
-function unlock(){document.getElementById('lockScreen').classList.add('hidden');document.getElementById('app').classList.add('show');initApp()}
-if(sessionStorage.getItem('lm_auth')==='1')unlock();
+// unlock is defined later after Supabase sync section (needs cloudPull)
 document.getElementById('pwInput').addEventListener('keydown',e=>{if(e.key==='Enter')tryUnlock()});
+
+// ═══════════════════════════════════════════
+// SUPABASE CLOUD SYNC
+// ═══════════════════════════════════════════
+const SUPABASE_URL='https://uuurwooqkumzujdosjpa.supabase.co';
+const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1dXJ3b29xa3VtenVqZG9zanBhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NzI4NDksImV4cCI6MjA5MDE0ODg0OX0.whThvdKYUqf12dspZbvm_nrDDOh6rav5leqiY2KcyHM';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
+
+// Keys we sync to cloud
+const SYNC_PREFIXES=['lm_'];
+
+// Pull all cloud data into localStorage (called on unlock, before initApp)
+async function cloudPull(){
+  try{
+    const{data,error}=await sb.from('lifemap_data').select('key,value,updated_at');
+    if(error){console.warn('Cloud pull failed:',error);return}
+    if(!data||!data.length){console.log('No cloud data yet');return}
+    data.forEach(row=>{
+      const local=localStorage.getItem(row.key);
+      // Cloud wins: overwrite local (cloud is source of truth for cross-device sync)
+      // Only skip if local is newer based on a stored timestamp
+      const localMeta=localStorage.getItem('_meta_'+row.key);
+      const localTs=localMeta?parseInt(localMeta):0;
+      const cloudTs=new Date(row.updated_at).getTime();
+      if(cloudTs>=localTs){
+        localStorage.setItem(row.key,JSON.stringify(row.value));
+        localStorage.setItem('_meta_'+row.key,cloudTs.toString());
+      }
+    });
+    console.log(`☁️ Pulled ${data.length} items from cloud`);
+  }catch(e){console.warn('Cloud pull error:',e)}
+}
+
+// Push a single key to cloud
+let _cloudQueue={};
+let _cloudTimer=null;
+function cloudPush(key){
+  _cloudQueue[key]=true;
+  clearTimeout(_cloudTimer);
+  _cloudTimer=setTimeout(_flushCloud,1500);
+}
+async function _flushCloud(){
+  const keys=Object.keys(_cloudQueue);
+  _cloudQueue={};
+  if(!keys.length)return;
+  const rows=keys.map(k=>{
+    const raw=localStorage.getItem(k);
+    let val;
+    try{val=JSON.parse(raw)}catch(e){val=raw}
+    const now=new Date().toISOString();
+    localStorage.setItem('_meta_'+k,Date.now().toString());
+    return{key:k,value:val,updated_at:now};
+  });
+  try{
+    const{error}=await sb.from('lifemap_data').upsert(rows,{onConflict:'key'});
+    if(error)console.warn('Cloud push failed:',error);
+    else console.log(`☁️ Pushed ${rows.length} items to cloud`);
+  }catch(e){console.warn('Cloud push error:',e)}
+}
+
+// Monkey-patch localStorage.setItem to auto-sync lifemap keys
+const _origSetItem=localStorage.setItem.bind(localStorage);
+localStorage.setItem=function(key,value){
+  _origSetItem(key,value);
+  if(key.startsWith('lm_')&&!key.startsWith('_meta_'))cloudPush(key);
+};
+
+// Define unlock (pulls from cloud before init)
+async function unlock(){
+  document.getElementById('lockScreen').classList.add('hidden');
+  document.getElementById('app').classList.add('show');
+  await cloudPull();
+  initApp();
+}
+// Auto-unlock if already authenticated
+if(sessionStorage.getItem('lm_auth')==='1') unlock();
+
+// Also refresh from cloud on visibility change (tab focus)
+document.addEventListener('visibilitychange',async()=>{
+  if(document.visibilityState==='visible'&&sessionStorage.getItem('lm_auth')==='1'){
+    await cloudPull();
+    // Re-render current view
+    loadData();
+    const activePage=document.querySelector('.nav-item.active');
+    if(activePage){
+      const page=activePage.dataset.page;
+      if(page==='daily')renderDaily();
+      if(page==='clarity'){initClarity()}
+      if(page==='cascade'){initCascade()}
+      if(page==='braindump')renderBrainDump();
+      if(page==='dream100')renderDream100();
+    }
+  }
+});
 
 // ═══════════════════════════════════════════
 // NAVIGATION

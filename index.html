@@ -1026,10 +1026,32 @@ localStorage.setItem=function(key,value){
   if(key.startsWith('lm_')&&!key.startsWith('_meta_'))cloudPush(key);
 };
 
-// Define unlock (pulls from cloud before init)
+// Push ALL existing lm_ keys to cloud (initial sync for pre-existing data)
+async function cloudPushAll(){
+  const items=[];
+  for(let i=0;i<localStorage.length;i++){
+    const key=localStorage.key(i);
+    if(key.startsWith('lm_')&&!key.startsWith('_meta_')){
+      items.push({key,value:localStorage.getItem(key),updated_at:new Date().toISOString()});
+    }
+  }
+  if(!items.length)return;
+  try{
+    // Push in batches of 50 to avoid payload limits
+    for(let i=0;i<items.length;i+=50){
+      await convexClient.mutation('lifemap:putBatch',{items:items.slice(i,i+50)});
+    }
+    console.log(`☁️ Initial push: ${items.length} items to Convex`);
+  }catch(e){console.warn('Cloud pushAll error:',e)}
+}
+
+// Define unlock (syncs cloud ↔ local before init)
 async function unlock(){
   document.getElementById('lockScreen').classList.add('hidden');
   document.getElementById('app').classList.add('show');
+  // First push any local data that hasn't been synced yet
+  await cloudPushAll();
+  // Then pull (cloud wins for conflicts with newer timestamps)
   await cloudPull();
   initApp();
 }
